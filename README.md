@@ -28,7 +28,7 @@ source ~/.bashrc
 Next clone this repository:
 ```
 cd ~/catkin_ws/src/
-git clone 
+git clone https://github.com/asilvaigor/psc.git
 ```
 
 Then run:
@@ -38,4 +38,4 @@ cd ~/catkin_ws/src/psc/configuration
 ```
 
 ## Configure PyCharm
-Open the project on psc folder. Go on `File>Settings>Project Interpreter`. Make sure you select python2.7 (`/usr/bin/python2.7`). Click on the gear button, then "Show All". Select the last button on the right (tree), than add a path to `catkin_ws/src/sim_cf/crazyflie_gazebo/tools` and one to `catkin_ws/src/psc/src/`
+Open the project on psc folder. Go on `File>Settings>Project>Project Interpreter`. Make sure you select python2.7 (`/usr/bin/python2.7`). Click on the gear button, then "Show All". Select the last button (tree), than add a path to `catkin_ws/src/sim_cf/crazyflie_gazebo/tools` and one to `catkin_ws/src/psc/src/`.
