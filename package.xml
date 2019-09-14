@@ -14,7 +14,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>crazyflie_gazebo</build_depend>
 
-  <exec_depend>rospy</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
-  <exec_depend>crazyflie_gazebo</exec_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>crazyflie_gazebo</run_depend>
 </package>
