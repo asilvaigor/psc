@@ -6,6 +6,9 @@ sudo apt-get install git zip qtcreator cmake build-essential genromfs ninja-buil
 sudo apt-get install protobuf-compiler libgoogle-glog-dev libeigen3-dev libxml2-utils
 sudo apt-get install ros-kinetic-mav-comm ros-kinetic-joy
 sudo apt-get install ros-kinetic-rqt-multiplot
+sudo apt-get install python3-pip python-pip
+pip install Jinja2
+pip3 install pyqt5
 
 cd ~/
 git clone https://github.com/bitcraze/crazyflie-clients-python.git
@@ -34,16 +37,3 @@ cd ~/catkin_ws
 
 ################ EDITING PYTHONPATH ##################
 echo 'export PYTHONPATH=$PYTHONPATH:~/catkin_ws/src/psc/src' >> ~/.bashrc
-
-################ CONFIGURING USB PERMISSIONS ###############
-# From <https://github.com/bitcraze/crazyflie-lib-python#setting-udev-permissions>
-sudo groupadd plugdev
-sudo usermod -a -G plugdev $USER
-sudo touch /etc/udev/rules.d/99-crazyradio.rules
-sudo echo '# Crazyradio (normal operation)' >> /etc/udev/rules.d/99-crazyradio.rules
-sudo echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE="0664", GROUP="plugdev"' >> /etc/udev/rules.d/99-crazyradio.rules
-sudo echo '# Bootloader' >> /etc/udev/rules.d/99-crazyradio.rules
-sudo echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="0101", MODE="0664", GROUP="plugdev"' >> /etc/udev/rules.d/99-crazyradio.rules
-sudo echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE="0664", GROUP="plugdev"' >> /etc/udev/rules.d/99-crazyradio.rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger
