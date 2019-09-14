@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import cflib.crtp
 import sys
 
