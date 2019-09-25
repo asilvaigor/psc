@@ -1,0 +1,15 @@
+<!-- Parameters -->
+<arg name="roll_trim" default="0" />
+<arg name="pitch_trim" default="0" />
+<arg name="enable_logging" default="True" />
+<arg name="use_ros_time" default="True" />
+<arg name="enable_logging_imu" default="False" />
+<arg name="enable_logging_temperature" default="False" />
+<arg name="enable_logging_magnetic_field" default="False" />
+<arg name="enable_logging_pressure" default="False" />
+<arg name="enable_logging_battery" default="False" />
+<arg name="enable_logging_packets" default="True" />
+
+<!-- Launch the server node ! Be sure it's only launch once -->
+<include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">
+</include>

@@ -1,0 +1,3 @@
+<!-- Crazyflie ($i) -->
+<arg name="uri_($i)" default="($n)" />
+<arg name="tf_prefix_($i)" default="cf($i)" />

@@ -1,0 +1,25 @@
+<!-- Add the crazyflie ($i) -->
+  <group ns="$(arg tf_prefix_($i))">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+      <param name="uri" value="$(arg uri_($i))" />
+      <param name="tf_prefix" value="$(arg tf_prefix_($i))" />
+      <param name="roll_trim" value="$(arg roll_trim)" />
+      <param name="pitch_trim" value="$(arg pitch_trim)" />
+      <param name="enable_logging" value="$(arg enable_logging)" />
+      <param name="use_ros_time" value="$(arg use_ros_time)" />
+      <param name="enable_logging_imu" value="$(arg enable_logging_imu)" />
+      <param name="enable_logging_temperature" value="$(arg enable_logging_temperature)" />
+      <param name="enable_logging_magnetic_field" value="$(arg enable_logging_magnetic_field)" />
+      <param name="enable_logging_pressure" value="$(arg enable_logging_pressure)" />
+      <param name="enable_logging_battery" value="$(arg enable_logging_battery)" />
+      <param name="enable_logging_packets" value="$(arg enable_logging_packets)"/>
+
+      <!-- Custom log usually used in simulation -->
+      <rosparam>
+        genericLogTopics: ["local_position","target_position"]
+        genericLogTopicFrequencies: [10,10]
+        genericLogTopic_local_position_Variables: ["stateEstimate.x", "stateEstimate.y", "stateEstimate.z", "stabilizer.roll", "stabilizer.pitch", "stabilizer.yaw"]
+        genericLogTopic_target_position_Variables: ["posCtl.targetX", "posCtl.targetY", "posCtl.targetZ", "controller.roll", "controller.pitch", "controller.yaw"]
+      </rosparam>
+    </node>
+  </group>
