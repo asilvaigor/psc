@@ -24,6 +24,3 @@ if __name__ == "__main__":
             continue
         address_dict[int(drone_number)] = address[0][0]
         print("Drone %s at address: %s" % (drone_number, address[0][0]))
-
-    # TODO generate file
-    # print(address_dict)

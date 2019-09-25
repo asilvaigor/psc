@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<!-- Crazyflie 8 -->
+<arg name="uri_8" default="radio://0/80/2M/E7E7E7E708" />
+<arg name="tf_prefix_8" default="cf8" />
+
+<!-- Parameters -->
+<arg name="roll_trim" default="0" />
+<arg name="pitch_trim" default="0" />
+<arg name="enable_logging" default="True" />
+<arg name="use_ros_time" default="True" />
+<arg name="enable_logging_imu" default="False" />
+<arg name="enable_logging_temperature" default="False" />
+<arg name="enable_logging_magnetic_field" default="False" />
+<arg name="enable_logging_pressure" default="False" />
+<arg name="enable_logging_battery" default="False" />
+<arg name="enable_logging_packets" default="True" />
+
+<!-- Launch the server node ! Be sure it's only launch once -->
+<include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">
+</include>
+
+<!-- Add the crazyflie 8 -->
+  <group ns="$(arg tf_prefix_8)">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+      <param name="uri" value="$(arg uri_8)" />
+      <param name="tf_prefix" value="$(arg tf_prefix_8)" />
+      <param name="roll_trim" value="$(arg roll_trim)" />
+      <param name="pitch_trim" value="$(arg pitch_trim)" />
+      <param name="enable_logging" value="$(arg enable_logging)" />
+      <param name="use_ros_time" value="$(arg use_ros_time)" />
+      <param name="enable_logging_imu" value="$(arg enable_logging_imu)" />
+      <param name="enable_logging_temperature" value="$(arg enable_logging_temperature)" />
+      <param name="enable_logging_magnetic_field" value="$(arg enable_logging_magnetic_field)" />
+      <param name="enable_logging_pressure" value="$(arg enable_logging_pressure)" />
+      <param name="enable_logging_battery" value="$(arg enable_logging_battery)" />
+      <param name="enable_logging_packets" value="$(arg enable_logging_packets)"/>
+
+      <!-- Custom log usually used in simulation -->
+      <rosparam>
+        genericLogTopics: ["local_position","target_position"]
+        genericLogTopicFrequencies: [10,10]
+        genericLogTopic_local_position_Variables: ["stateEstimate.x", "stateEstimate.y", "stateEstimate.z", "stabilizer.roll", "stabilizer.pitch", "stabilizer.yaw"]
+        genericLogTopic_target_position_Variables: ["posCtl.targetX", "posCtl.targetY", "posCtl.targetZ", "controller.roll", "controller.pitch", "controller.yaw"]
+      </rosparam>
+    </node>
+  </group>
+</launch>
