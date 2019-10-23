@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <node pkg="swarm_controller" type="swarm_controller" name="swarm_controller_node"
+        output="screen">
+  </node>
+</launch>

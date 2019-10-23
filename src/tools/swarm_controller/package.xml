@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package format="2">
+  <name>swarm_controller</name>
+  <version>0.3.10</version>
+  <description>swarm_controller provides a GUI plugin to ...</description>
+
+  <maintainer email="todo@todo.com">todo</maintainer>
+  <license>TODO</license>
+  <!-- <url type="website">http://www.bla.com</url> -->
+  <author email="todo@todo.com">todo</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rospy</build_depend>
+  <build_depend>rqt_gui_py</build_depend>
+
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+</package>
