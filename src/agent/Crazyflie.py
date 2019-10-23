@@ -4,8 +4,9 @@ import rospy
 import numpy as np
 from crazyflie_driver.srv import *
 from crazyflie_driver.msg import TrajectoryPolynomialPiece
-from geometry_msgs.msg import Pose
 from tf import TransformListener
+from geometry_msgs.msg import Pose
+from tf.transformations import quaternion_from_euler
 
 
 def arrayToGeometryPoint(a):
@@ -28,8 +29,8 @@ class Crazyflie:
         self.cf_id = id
 
         self.__position_subs = rospy.Subscriber(prefix + '/local_position', crazyflie_driver.msg.GenericLogData,
-                                                self.__position_callback)
-        self.__position = Pose()
+                                                self.__pose_callback)
+        self.__pose = Pose
 
         rospy.wait_for_service(prefix + "/set_group_mask")
         self.setGroupMaskService = rospy.ServiceProxy(prefix + "/set_group_mask", SetGroupMask)
@@ -86,10 +87,15 @@ class Crazyflie:
         position, quaternion = self.tf.lookupTransform("/world", "/cf" + str(self.cf_id), rospy.Time(0))
         return np.array(position)
 
-    def __position_callback(self, data):
-        self.__position.Point = data.values[0:3]
+    def pose(self):
+        return self.__pose
 
-        print data.values
+    def __pose_callback(self, data):
+        self.__pose.position.x = data.values[0]
+        self.__pose.position.y = data.values[1]
+        self.__pose.position.z = data.values[2]
+        self.__pose.orientation = quaternion_from_euler(
+            data.values[3], data.values[4], data.values[5])
 
     def getParam(self, name):
         return rospy.get_param(self.prefix + "/" + name)
