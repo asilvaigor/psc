@@ -4,6 +4,7 @@ from decision_making.DecisionMaking import DecisionMaking
 from perception.Perception import Perception
 from representations.Constants import RATE
 from tools.SwarmController import SwarmController
+from tools.telemetry.VisualizationPublisher import VisualizationPublisher
 
 
 class Swarm:
@@ -13,6 +14,7 @@ class Swarm:
         self.__controller = SwarmController(self.__drones)
         self.__decision_making = DecisionMaking(self.__drones)
         self.__perception = Perception()
+        self.__visualization_publisher = VisualizationPublisher()
 
     def run_controller(self):
         self.__controller.execute()
@@ -25,6 +27,8 @@ class Swarm:
                 for drone in self.__drones:
                     # TODO
                     pass
+            # Call of a method in visualization_publisher that creates the interface
+            self.__visualization_publisher.visualize()
             r.sleep()
 
     def get_drones(self):
