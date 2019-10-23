@@ -30,7 +30,7 @@ class Crazyflie:
 
         self.__position_subs = rospy.Subscriber(prefix + '/local_position', crazyflie_driver.msg.GenericLogData,
                                                 self.__pose_callback)
-        self.__pose = Pose
+        self.__pose = Pose()
 
         rospy.wait_for_service(prefix + "/set_group_mask")
         self.setGroupMaskService = rospy.ServiceProxy(prefix + "/set_group_mask", SetGroupMask)
@@ -87,6 +87,7 @@ class Crazyflie:
         position, quaternion = self.tf.lookupTransform("/world", "/cf" + str(self.cf_id), rospy.Time(0))
         return np.array(position)
 
+    @property
     def pose(self):
         return self.__pose
 
