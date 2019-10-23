@@ -1,10 +1,7 @@
 import rospy
-import numpy as np
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
-from geometry_msgs.msg import Pose
-from agent.Crazyflie import Crazyflie
-from agent.Swarm import Swarm
+from representations.Constants import COLORS
 
 class VisualizationPublisher:
 
@@ -13,7 +10,7 @@ class VisualizationPublisher:
         Basic constructor
         """
         self.__drones = drones
-        # Make the basic calls before it begins, open interface
+        self.__counter = 0 # counter to take different colors for the drones
 
     def visualize(self):
         topic = 'visualization_drones'
@@ -34,15 +31,18 @@ class VisualizationPublisher:
         droneMarker.header.frame_id = str(drone.cf_id)
         droneMarker.type = droneMarker.ARROW
         droneMarker.action = droneMarker.ADD
+
         # Size of the marker
         droneMarker.scale.x = 0.1
         droneMarker.scale.y = 0.1
         droneMarker.scale.z = 0.1
+
         # Color of the marker
-        droneMarker.color.a = 1.0
-        droneMarker.color.r = 1.0
-        droneMarker.color.g = 1.0
-        droneMarker.color.b = 0.0
+        droneMarker.color = COLORS[self.__counter]
+        self.__counter = self.__counter + 1
+        if self.__counter > 5:
+            self.__counter = 0
+
         # Position of the marker
         droneMarker.pose = drone.pose
         return droneMarker
