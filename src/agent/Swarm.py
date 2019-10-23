@@ -28,6 +28,7 @@ class Swarm:
                     # TODO
                     pass
             # Call of a method in visualization_publisher that creates the interface
+            self.__visualization_publisher.visualize()
             r.sleep()
 
     def get_drones(self):
