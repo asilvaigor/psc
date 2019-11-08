@@ -1,8 +1,8 @@
 <library path="src">
-  <class name="SwarmController" type="swarm_controller.SwarmController.SwarmController"
+  <class name="SwarmController" type="SwarmController.SwarmController"
          base_class_type="rqt_gui_py::Plugin">
     <description>
-      A GUI plugin to ...
+      A GUI plugin to control the swarm of drones during execution.
     </description>
     <qtgui>
       <group>

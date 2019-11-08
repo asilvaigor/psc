@@ -17,4 +17,8 @@
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>crazyflie_gazebo</run_depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/src/tools/swarm_controller/plugin.xml"/>
+  </export>
 </package>
