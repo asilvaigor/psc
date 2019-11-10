@@ -12,6 +12,22 @@ MAX_Y = 0.5  # m
 MIN_Z = 0  # m
 MAX_Z = 1  # m
 
+# Maximum velocities
+# TODO: put good values
+MAX_VEL_X = 0.1
+MAX_VEL_Y = 0.1
+MAX_VEL_Z = 0.1
+MAX_VEL_YAW = 0.05
+
+# Maximum acceleration
+# TODO: put good values
+MAX_ACC_X = 0.03
+MAX_ACC_Y = 0.03
+MAX_ACC_Z = 0.03
+MAX_ACC_YAW = 0.03
+
+# TODO: define maximum path curvature
+
 # Margin for a drone to pass next to an obstacle.
 OBSTACLE_MARGIN = 0.2
 
@@ -23,3 +39,7 @@ GREEN = ColorRGBA(0.0, 1.0, 0.0, 0.0)
 PINK = ColorRGBA(1.0, 0.0781, 0.5742, 1.0)
 WHITE = ColorRGBA(1.0, 1.0, 1.0, 1.0)
 COLORS = [BLUE, YELLOW, PINK, GREEN, WHITE]
+
+# States for code
+PAUSED = 1
+RUNNING = 2

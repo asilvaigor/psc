@@ -18,7 +18,8 @@ class ObstacleCollection:
 
     def collides(self, trajectory, margin):
         """
-        Checks if the drone will collide with any of the obstacles by following the given trajectory.
+        Checks if the drone will collide with any of the obstacles by following the given
+        trajectory.
         :param trajectory: Trajectory the drone should follow.
         :param margin: A margin for the drone to pass by an obstacle and not collide.
         :return: True if the trajectory collides with any obstacle.
