@@ -26,3 +26,11 @@ Then run:
 ## Configure PyCharm
 Open the project on `~/catkin_ws/src/psc` folder.
 To configure python paths inside pycharm, go on `File>Settings>Project>Project Interpreter`. Make sure you select python2.7 (`/usr/bin/python2.7`). Click on the gear button, then "Show All". Select the last button (tree), than add a path to `catkin_ws/src/sim_cf/crazyflie_gazebo/tools` and one to `catkin_ws/src/psc/src/`.
+
+## Running Rqt
+For the first time you run,
+```
+rqt --force-discover
+```
+
+For running again, the `--force-discover` option is unnecessary.

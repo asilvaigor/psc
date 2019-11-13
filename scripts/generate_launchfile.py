@@ -42,6 +42,11 @@ if __name__ == "__main__":
     print("Connecting to drones: ", end="")
     print(list(address_dict.keys()))
 
+    # Editing connected_drones.txt
+    f = open(LOCATION+"/../launch/connected_drones.txt", "w")
+    f.write(' '.join(str(e) for e  in address_dict.keys()))
+    f.close()
+
     # Adding file header
     generated_file = open(LOCATION+"/templates_launch/header.xml", "r").read()
 

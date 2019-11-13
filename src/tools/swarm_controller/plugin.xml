@@ -1,0 +1,18 @@
+<library path="src">
+  <class name="SwarmController" type="SwarmController.SwarmController"
+         base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A GUI plugin to control the swarm of drones during execution.
+    </description>
+    <qtgui>
+      <group>
+        <label>PSC</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to crazyflie drone trajectory planning PSC.</statustip>
+      </group>
+      <label>Swarm Controller</label>
+      <icon type="theme">input-mouse</icon>
+      <statustip>Allows controlling the swarm of drones during execution.</statustip>
+    </qtgui>
+  </class>
+</library>

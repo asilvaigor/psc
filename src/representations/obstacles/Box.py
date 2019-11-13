@@ -18,9 +18,10 @@ class Box(Obstacle):
 
     def collides(self, trajectory, margin):
         """
-        Checks if the drone will collide with the box by following the given trajectory. Does this by adding the
-        margin to the side of the box first, then analyzing, for each pair of points in the trajectory, if the segment
-        which connects them intersects any of the planes of the increased box.
+        Checks if the drone will collide with the box by following the given trajectory. Does this
+        by adding the margin to the side of the box first, then analyzing, for each pair of points
+        in the trajectory, if the segment which connects them intersects any of the planes of the
+        increased box.
         :param trajectory: Trajectory the drone should follow.
         :param margin: A margin for the drone to pass by the box and not collide.
         :return: True if the trajectory collides with the box.

@@ -10,16 +10,15 @@ class VisualizationPublisher:
         Basic constructor
         """
         self.__drones = drones
-        self.__counter = 0 # counter to take different colors for the drones
+        self.__counter = 0  # counter to take different colors for the drones
 
     def visualize(self):
         topic = 'visualization_drones'
         publisher = rospy.Publisher(topic, MarkerArray)
-        rospy.init_node('drones')
         drones_markers = MarkerArray()
 
         # Here we call each drone
-        for drone in self.__drones:
+        for drone in self.__drones.items():
             drones_markers.markers.append(self.__visualize_drone(drone))
 
         # Publish the array of markers

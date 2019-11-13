@@ -4,7 +4,8 @@ from representations.obstacles.ObstacleCollection import ObstacleCollection
 
 class Perception:
     """
-    Contains obstacle detection including vision and tracking, and eventually position filters for the drones.
+    Contains obstacle detection including vision and tracking, and eventually position filters for
+    the drones.
     """
 
     def __init__(self):
