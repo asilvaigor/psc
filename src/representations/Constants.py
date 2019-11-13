@@ -17,7 +17,7 @@ MAX_Z = 1  # m
 MAX_VEL_X = 0.375  # m/s
 MAX_VEL_Y = 0.375  # m/s
 MAX_VEL_Z = 0.375  # m/s
-MAX_VEL_YAW = 0.05  # rad/s
+MAX_VEL_YAW = 0.5  # rad/s
 
 # Maximum acceleration
 # TODO: put good values

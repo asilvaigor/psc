@@ -30,8 +30,8 @@ class DecisionMaking:
 
     def unpause(self, goal_pose):
         """
-        Unpause all the drones, making them move autonomously again. Note that the drones will
-        initialize paused.
+        Unpause all the drones, calculating the new trajectory and making them move autonomously
+        again. Note that the drones will initialize paused.
         @param goal_pose: Goal pose in the trajectory planner.
         """
         self.__goal_pose = goal_pose
