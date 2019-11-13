@@ -27,22 +27,22 @@ class VisualizationPublisher:
 
     def __visualize_drone(self, drone):
         # Show each drone
-        droneMarker = Marker()
-        droneMarker.header.frame_id = str(drone.cf_id)
-        droneMarker.type = droneMarker.ARROW
-        droneMarker.action = droneMarker.ADD
+        dronemarker = Marker()
+        dronemarker.header.frame_id = str(drone.cf_id)
+        dronemarker.type = dronemarker.ARROW
+        dronemarker.action = dronemarker.ADD
 
         # Size of the marker
-        droneMarker.scale.x = 0.1
-        droneMarker.scale.y = 0.1
-        droneMarker.scale.z = 0.1
+        dronemarker.scale.x = 0.1
+        dronemarker.scale.y = 0.1
+        dronemarker.scale.z = 0.1
 
         # Color of the marker
-        droneMarker.color = COLORS[self.__counter]
+        dronemarker.color = COLORS[self.__counter]
         self.__counter = self.__counter + 1
         if self.__counter > 5:
             self.__counter = 0
 
         # Position of the marker
-        droneMarker.pose = drone.pose
-        return droneMarker
+        dronemarker.pose = drone.pose
+        return dronemarker
