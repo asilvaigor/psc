@@ -49,7 +49,7 @@ class CrazyflieServices:
         self.__stopService(group_mask)
 
     def goto(self, goal, yaw, duration, relative=False, group_mask=0):
-        self.__goToService(group_mask, relative, goal.point, yaw, rospy.Duration.from_sec(duration))
+        self.__goToService(group_mask, relative, goal, yaw, rospy.Duration.from_sec(duration))
 
     def upload_trajectory(self, trajectory_id, piece_offset, trajectory):
         pieces = []
