@@ -10,7 +10,6 @@ class VisualizationPublisher:
         Basic constructor
         """
         self.__drones = drones
-        self.__counter = 0  # counter to take different colors for the drones
 
     def visualize(self):
         topic = 'visualization_drones'
@@ -18,7 +17,7 @@ class VisualizationPublisher:
         drones_markers = MarkerArray()
 
         # Here we call each drone
-        for drone in self.__drones.items():
+        for drone in self.__drones.values():
             drones_markers.markers.append(self.__visualize_drone(drone))
 
         # Publish the array of markers
@@ -27,7 +26,7 @@ class VisualizationPublisher:
     def __visualize_drone(self, drone):
         # Show each drone
         dronemarker = Marker()
-        dronemarker.header.frame_id = str(drone.cf_id)
+        dronemarker.header.frame_id = str(drone.id)
         dronemarker.type = dronemarker.ARROW
         dronemarker.action = dronemarker.ADD
 
@@ -37,10 +36,7 @@ class VisualizationPublisher:
         dronemarker.scale.z = 0.1
 
         # Color of the marker
-        dronemarker.color = COLORS[self.__counter]
-        self.__counter = self.__counter + 1
-        if self.__counter > 5:
-            self.__counter = 0
+        dronemarker.color = COLORS[drone.id - 1]
 
         # Position of the marker
         dronemarker.pose = drone.pose

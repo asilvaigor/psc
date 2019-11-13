@@ -5,7 +5,7 @@ import time
 import math
 
 from agent.Crazyflie import Crazyflie
-
+from representations.Constants import RATE
 
 def up_and_down(cf):
     rospy.init_node("integration_test")
