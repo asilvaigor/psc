@@ -39,6 +39,6 @@ def circle_trajectory(freq, duration, r):
 
 if __name__ == '__main__':
     cf = Crazyflie(1)
-    # up_and_down(cf)
+    #up_and_down(cf)
     circle_trajectory(50, 10, 0.8)
     cf.stop()

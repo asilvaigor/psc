@@ -8,6 +8,7 @@ from representations.Constants import RATE
 from agent.Crazyflie import Crazyflie
 from tools.telemetry.VisualizationPublisher import VisualizationPublisher
 
+
 # Testing the class VisualizationPublisher.py
 # It hasn't worked yet
 

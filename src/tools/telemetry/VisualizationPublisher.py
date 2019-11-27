@@ -2,6 +2,7 @@ import rospy
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from representations.Constants import COLORS
+from representations.Constants import MARKER_SIZES
 
 class VisualizationPublisher:
 
@@ -13,7 +14,8 @@ class VisualizationPublisher:
 
     def visualize(self):
         topic = 'visualization_drones'
-        publisher = rospy.Publisher(topic, MarkerArray)
+        # Review the queue_size
+        publisher = rospy.Publisher(topic, MarkerArray, queue_size=10)
         drones_markers = MarkerArray()
 
         # Here we call each drone
@@ -31,9 +33,9 @@ class VisualizationPublisher:
         dronemarker.action = dronemarker.ADD
 
         # Size of the marker
-        dronemarker.scale.x = 0.1
-        dronemarker.scale.y = 0.1
-        dronemarker.scale.z = 0.1
+        dronemarker.scale.x = MARKER_SIZES[0]
+        dronemarker.scale.y = MARKER_SIZES[1]
+        dronemarker.scale.z = MARKER_SIZES[2]
 
         # Color of the marker
         dronemarker.color = COLORS[drone.id - 1]
