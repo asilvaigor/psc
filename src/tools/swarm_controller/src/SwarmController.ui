@@ -120,7 +120,8 @@
               <string>Shutdown</string>
              </property>
              <property name="icon">
-              <iconset theme="edit-delete"/>
+              <iconset theme="edit-delete">
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -146,7 +147,8 @@
               <string>GoTo</string>
              </property>
              <property name="icon">
-              <iconset theme="go-next"/>
+              <iconset theme="go-next">
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
@@ -166,12 +168,15 @@
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>38</width>
+                 <width>45</width>
                  <height>16777215</height>
                 </size>
                </property>
                <property name="text">
                 <string>0.00</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -199,12 +204,15 @@
               <widget class="QLineEdit" name="y_line_edit">
                <property name="maximumSize">
                 <size>
-                 <width>38</width>
+                 <width>45</width>
                  <height>16777215</height>
                 </size>
                </property>
                <property name="text">
                 <string>0.00</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -232,12 +240,15 @@
               <widget class="QLineEdit" name="z_line_edit">
                <property name="maximumSize">
                 <size>
-                 <width>38</width>
+                 <width>45</width>
                  <height>16777215</height>
                 </size>
                </property>
                <property name="text">
                 <string>0.00</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -265,7 +276,7 @@
               <widget class="QLineEdit" name="yaw_line_edit">
                <property name="maximumSize">
                 <size>
-                 <width>38</width>
+                 <width>42</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -328,7 +339,8 @@
                <string>Update</string>
               </property>
               <property name="icon">
-               <iconset theme="view-refresh"/>
+               <iconset theme="view-refresh">
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </widget>
             </item>
