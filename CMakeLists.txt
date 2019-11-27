@@ -216,3 +216,4 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_subdirectory(src/tools/swarm_controller)
+add_subdirectory(src/tools/connection_handler)
