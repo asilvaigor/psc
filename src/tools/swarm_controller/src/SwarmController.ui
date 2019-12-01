@@ -91,7 +91,7 @@
            <item>
             <widget class="QPushButton" name="swap_push_button">
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change selected drone state: In-Use or Connected. If the drones are simulated, they are all moved together, and gazebo will open when they change to the &amp;quot;In-Use&amp;quot; list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change selected drone state: In-Use or Connected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="text">
               <string>&lt;&lt; Swap &gt;&gt;</string>
@@ -341,6 +341,16 @@
               <property name="icon">
                <iconset theme="view-refresh">
                 <normaloff>.</normaloff>.</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="run_gazebo_push_button">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Runs simulation server for the drones and gazebo in the background.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Run Gazebo</string>
               </property>
              </widget>
             </item>

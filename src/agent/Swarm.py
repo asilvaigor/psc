@@ -67,7 +67,6 @@ class Swarm:
         :param drone_id: Drone to be stopped.
         """
         if drone_id == 0:
-            print("shutting")
             for key in self.__drones.keys():
                 self.__decision_making.stop_drone(key)
         else:
@@ -88,9 +87,12 @@ class Swarm:
         """
         self.__drones[drone_id] = Crazyflie(drone_id)
 
-    def remove_drone(self, drone_id):
+    def remove_drone(self, drone_id=0):
         """
         Removes a drone from the dict of used drones.
         :param drone_id: Id of the drone to be removed.
         """
-        del self.__drones[drone_id]
+        if drone_id == 0:
+            self.__drones.clear()
+        else:
+            del self.__drones[drone_id]

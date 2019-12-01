@@ -10,7 +10,7 @@ MAX_X = 0.5  # m
 MIN_Y = -0.5  # m
 MAX_Y = 0.5  # m
 MIN_Z = 0  # m
-MAX_Z = 1  # m
+MAX_Z = 1.5  # m
 
 # Maximum velocities
 # TODO: put good values
