@@ -2,17 +2,17 @@
   <class name="ConnectionHandler" type="ConnectionHandler.ConnectionHandler"
          base_class_type="rqt_gui_py::Plugin">
     <description>
-      A GUI plugin to control the swarm of drones during execution.
+      A GUI to manage the connections with crazyflie drones
     </description>
     <qtgui>
       <group>
         <label>PSC</label>
         <icon type="theme">folder</icon>
-        <statustip>Plugins related to crazyflie drone trajectory planning PSC.</statustip>
+        <statustip>Plugins related to crazyflie drones connections.</statustip>
       </group>
-      <label>Swarm Controller</label>
-      <icon type="theme">input-mouse</icon>
-      <statustip>Allows controlling the swarm of drones during execution.</statustip>
+      <label>Connection Handler</label>
+      <icon type="theme">network-wireless</icon>
+      <statustip>Allows establishing connection with crazyflie drones.</statustip>
     </qtgui>
   </class>
 </library>
