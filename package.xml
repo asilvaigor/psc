@@ -20,5 +20,6 @@
 
   <export>
     <rqt_gui plugin="${prefix}/src/tools/swarm_controller/plugin.xml"/>
+    <rqt_gui plugin="${prefix}/src/tools/connection_handler/plugin.xml"/>
   </export>
 </package>
