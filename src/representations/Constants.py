@@ -4,7 +4,7 @@ from std_msgs.msg import ColorRGBA
 RATE = 30  # Hz
 
 # Number of drones
-N_DRONES = 10
+N_DRONES = 12
 
 # Room limits for the drones to be in.
 # TODO: put good values

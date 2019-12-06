@@ -10,7 +10,7 @@ from representations.Constants import N_DRONES
 from subprocess import Popen, PIPE
 
 from tools.connection_handler.src.ServerThread import ServerThread
-
+from tools.connection_handler.src.ConnectionThread import ConnectionThread
 
 class ConnectionHandler(Plugin):
     """
@@ -38,6 +38,7 @@ class ConnectionHandler(Plugin):
         self.selected_drone = -1
         # TODO : see if makes sente t still have this dictinary
         self.process_dict = {}
+        self.connection_thread = None
         self.server_thread = None
         self.server_running = False
         self.available_drones = {}
@@ -55,7 +56,7 @@ class ConnectionHandler(Plugin):
     def display_message(self, text, color):
         self.__widget.status_label.setText("<font color=\"%s\">%s</font>" % (color, text))
 
-    def update_item_mnessage(self, drone_id, text, color):
+    def update_item_message(self, drone_id, text, color):
         def formatted_string(drone, text, color):
             black_text = "<font color=\"black\">Drone %s" % str(drone)
             spaces = ""
@@ -161,15 +162,24 @@ class ConnectionHandler(Plugin):
                     if drone < 1 or drone > N_DRONES:
                         message = "Drone %d out of bounds" % drone
                         self.display_message(message, "red")
-                    elif drone in items_ids:
-                        message = "Drone %d already in the list" % drone
-                        self.display_message(message, "olive")
                     else:
-                        # TODO: change the messages
                         message = "Idle"
                         self.display_message(message, "black")
                         drones_to_add += [drone]
-                connect_to_drones(drones_to_add)
+                        if drone not in items_ids:
+                            item = QListWidgetItem("", type=drone)
+                            self.__widget.connected_list.addItem(item)
+
+                # Creating connection thread and connecting signals to thread
+                self.connection_thread = ConnectionThread(drones_to_add)
+                self.connection_thread.update_crazyflie_status.connect(
+                    lambda (i, m, c): self.update_item_message(i, m, c))
+
+                def add_available((drone_id, radio_id)):
+                    self.available_drones[drone_id] = radio_id
+                self.connection_thread.add_crazyflie_available.connect(add_available)
+
+                self.connection_thread.start()
             else:
                 # Killing process
                 try:
@@ -226,7 +236,7 @@ class ConnectionHandler(Plugin):
                 self.server_thread = ServerThread(self.available_drones)
                 self.server_thread.display_messages.connect(lambda (m, c): self.display_message(m, c))
                 self.server_thread.update_crazyflie_status.connect(
-                    lambda (i, m, c): self.update_item_mnessage(i, m, c))
+                    lambda (i, m, c): self.update_item_message(i, m, c))
 
                 self.server_thread.start()
             else:
