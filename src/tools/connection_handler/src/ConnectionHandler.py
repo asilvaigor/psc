@@ -5,8 +5,11 @@ from argparse import ArgumentParser
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from PyQt5.QtWidgets import QWidget, QMessageBox, QListWidgetItem, QLabel
+from PyQt5 import QtCore
 from representations.Constants import N_DRONES
 from subprocess import Popen, PIPE
+
+from tools.connection_handler.src.ServerThread import ServerThread
 
 
 class ConnectionHandler(Plugin):
@@ -27,6 +30,7 @@ class ConnectionHandler(Plugin):
 
         # UI configurations
         self.__configure_connection_button()
+        self.__configure_run_server_button()
         self.__configure_connected_list()
 
         # State variables for the widget
@@ -34,7 +38,8 @@ class ConnectionHandler(Plugin):
         self.selected_drone = -1
         # TODO : see if makes sente t still have this dictinary
         self.process_dict = {}
-        self.server_process = None
+        self.server_thread = None
+        self.server_running = False
 
         context.add_widget(self.__widget)
 
@@ -195,6 +200,32 @@ class ConnectionHandler(Plugin):
                 self.selected_drone = -1
 
         self.__widget.connection_button.clicked.connect(handle_connection_button)
+
+    def __configure_run_server_button(self):
+        """
+        Configures the button to launch the crazyflie server and lauches the crazyflie server thread
+        """
+
+        def handle_click():
+            self.__widget.run_server_button.setText("ola")
+            self.thread = ServerThread(1, "teste")
+
+            def progress(text):
+                self.display_message(text, "red")
+                pass
+
+            self.thread.data_downloaded.connect(progress)
+
+
+
+            self.thread.start()
+            # from PyQt5.QtCore import QObject
+            # self.__widget.run_server_button.connect(thread, QtCore.SIGNAL("progress(int, int)"), progress)
+
+
+
+
+        self.__widget.run_server_button.clicked.connect(handle_click)
 
     def __configure_connected_list(self):
         """
