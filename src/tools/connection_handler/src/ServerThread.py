@@ -1,35 +1,65 @@
-import threading
-import time
-
+import psutil, os, signal
 from PyQt5 import QtCore
+from subprocess import Popen, PIPE
+
+TIMEOUT = 100
 
 
 class ServerThread(QtCore.QThread):
-    data_downloaded = QtCore.pyqtSignal(object)
+    update_crazyflie_status = QtCore.pyqtSignal(object)
+    display_messages = QtCore.pyqtSignal(object)
 
-    def __init__(self, threadID, name):
+    def __init__(self, available_drones):
         QtCore.QThread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.cont = 1
-
+        self.available_drones = available_drones
+        self.server_process = None
 
     def run(self):
-        print "Starting " + self.name
-        self.print_time(self.name, 5, self.cont)
-        print "Exiting " + self.name
+        """
+        Launch server and crazyflie instances
+        """
+        self.display_messages.emit(("Starting connection...", "blue"))
 
-    def print_time(self, threadName, counter, delay):
-        while counter:
-            # if exitFlag:
-            #     threadName.exit()
-            time.sleep(delay)
-            print "%s: %s" % (threadName, time.ctime(time.time()))
-            # self.widget.status_label.setText("<font color=\"%s\">%s</font>" % ("red", "%s: %s" % (threadName, time.ctime(time.time()))))
-            self.data_downloaded.emit(str(counter))
-            counter -= 1
+        # Opening server process
+        self.server_process = Popen(["roslaunch", "crazyflie_driver", "crazyflie_server.launch"], stdout=PIPE)
 
+        # TODO treat errors and centralize message (in UI)
 
-if __name__=="__main__":
-    t = ServerThread(1 ,"la")
-    t.start()
+        self.display_messages.emit(("Server online", "darkgreen"))
+
+        # TODO treat different behaviours of the crazyflies add
+
+        # Update crazyflies status to connecting
+        for drone in self.available_drones:
+            self.update_crazyflie_status.emit((drone, "connecting...", "blue"))
+
+        # Opening communications with drones
+        for drone in self.available_drones:
+            cf_process = Popen(["roslaunch", "psc", "run_real.launch",
+                                "cf:=" + str(drone), "radio_id:=" + self.available_drones[drone]])
+            # TODO use timeout
+            while cf_process.poll() is None:
+            # (output, err) = process.communicate()
+                pass
+
+            # Showing successful connection message
+            self.update_crazyflie_status.emit((drone, "online", "green"))
+
+    def stop(self):
+        """
+        Stop server process
+        """
+
+        # Getting child processes
+        children_pids = [x.pid for x in psutil.Process(self.server_process.pid).children(recursive=True)]
+
+        # Killing all the child processes
+        for pid in children_pids:
+            os.killpg(pid, signal.SIGINT)
+
+        self.display_messages.emit(("Idle", "black"))
+
+        # TODO treat possibly closing crazyflie_add end errors
+        # Update crazyflies status to connecting
+        for drone in self.available_drones:
+            self.update_crazyflie_status.emit((drone, "offline id:"+self.available_drones[drone], "olive"))

@@ -40,29 +40,37 @@ class ConnectionHandler(Plugin):
         self.process_dict = {}
         self.server_thread = None
         self.server_running = False
+        self.available_drones = {}
 
         context.add_widget(self.__widget)
 
     def change_to_connection_mode(self, connection_mode):
         if connection_mode:
-            self.__widget.connection_button.setText("Connect")
+            self.__widget.connection_button.setText("Add")
             self.connection_mode = True
         else:
-            self.__widget.connection_button.setText("Disconnect")
+            self.__widget.connection_button.setText("Remove")
             self.connection_mode = False
 
     def display_message(self, text, color):
         self.__widget.status_label.setText("<font color=\"%s\">%s</font>" % (color, text))
 
-    def run_server(self, drones_ids, radio_ids):
-        # Opening server process
-        self.server_process = Popen(["roslaunch", "crazyflie_driver", "crazyflie_server.launch"], stdout=PIPE)
+    def update_item_mnessage(self, drone_id, text, color):
+        def formatted_string(drone, text, color):
+            black_text = "<font color=\"black\">Drone %s" % str(drone)
+            spaces = ""
+            for i in range(self.connected_drone_line_length - len(black_text) - len(str(drone)) + 20):
+                spaces += "&nbsp;"
+            color_text = "<font color=\"%s\">%s</font>" % (color, text)
+            return black_text + spaces + color_text
 
-        # Opening communications with drones
-        for i in range(len(drones_ids)):
-            cf_process = Popen(["roslaunch", "psc", "run_real.launch",
-                       "cf:=" + str(drones_ids[i]), "radio_id:=" + radio_ids[i]])
-            self.process_dict[drones_ids[i]] = cf_process
+        # Getting the item with id drone id
+        item = next((self.__widget.connected_list.item(i) for i in range(self.__widget.connected_list.count())
+                     if self.__widget.connected_list.item(i).type() == drone_id), None)
+
+        # Setting label text
+        label = QLabel(formatted_string(drone_id, text, color))
+        self.__widget.connected_list.setItemWidget(item, label)
 
     def __configure_connection_button(self):
         """
@@ -80,23 +88,22 @@ class ConnectionHandler(Plugin):
             def formatted_string(drone, text, color):
                 black_text = "<font color=\"black\">Drone %s" % str(drone)
                 spaces = ""
-                for i in range(self.connected_drone_line_length-len(black_text)-len(str(drone))+20):
+                for i in range(self.connected_drone_line_length - len(black_text) - len(str(drone)) + 20):
                     spaces += "&nbsp;"
                 color_text = "<font color=\"%s\">%s</font>" % (color, text)
-                return black_text+spaces+color_text
+                return black_text + spaces + color_text
 
             # Adding widget and text
             for drone_id in drones_ids:
                 item = QListWidgetItem("", type=drone_id)
                 self.__widget.connected_list.addItem(item)
-                # TODO: change connect to add and disconnect to remove
                 # TODO: change to update in separate thread
                 start_message = "Connecting..."
                 label = QLabel(formatted_string(drone_id, start_message, "blue"))
                 self.__widget.connected_list.setItemWidget(item, label)
 
             # Getting drones ids
-            process = Popen(["rosrun", "psc", "generate_launchfile.py"]+list(map(str, drones_ids)), stdout=PIPE)
+            process = Popen(["rosrun", "psc", "generate_launchfile.py"] + list(map(str, drones_ids)), stdout=PIPE)
             read = ""
             while process.poll() is None:
                 (output, err) = process.communicate()
@@ -105,20 +112,24 @@ class ConnectionHandler(Plugin):
             radio_ids = ast.literal_eval("[" + read[read.find('{') + 1:read.find('}')] + "]")
 
             for drone_id in drones_ids:
-                # Getting the item with id droone id
+                # Getting the item with id drone id
                 item = next((self.__widget.connected_list.item(i) for i in
                              range(self.__widget.connected_list.count())
                              if self.__widget.connected_list.item(i).type() == drone_id), None)
 
                 if drone_id in connected_drones:
-                    message = "Connected"
-                    label = QLabel(formatted_string(drone_id, message, "darkgreen"))
+                    message = "Id : todo"
+                    label = QLabel(formatted_string(drone_id, message, "olive"))
                     self.__widget.connected_list.setItemWidget(item, label)
                 else:
                     message = "Unable to connect"
                     label = QLabel(formatted_string(drone_id, message, "red"))
                     self.__widget.connected_list.setItemWidget(item, label)
-            self.run_server(connected_drones, radio_ids)
+
+            # TODO redo this part
+            for drone in connected_drones:
+                self.available_drones[drone] = radio_ids[connected_drones.index(drone)]
+            # self.run_server(connected_drones, radio_ids)
             # if radio_id == "":
             #     message = "Unable to connect"
             #     label = QLabel(formatted_string(drone_id, start_message, "blue"))
@@ -187,7 +198,6 @@ class ConnectionHandler(Plugin):
                 except:
                     pass
 
-
                 # Removing from graphical interface
                 items = [list_widget.item(i) for i in range(list_widget.count())]
                 item_to_remove = -1
@@ -207,23 +217,23 @@ class ConnectionHandler(Plugin):
         """
 
         def handle_click():
-            self.__widget.run_server_button.setText("ola")
-            self.thread = ServerThread(1, "teste")
+            if not self.server_running:
+                self.__widget.run_server_button.setText("Stop")
+                self.server_running = True
+                self.__widget.connection_button.setEnabled(False)
 
-            def progress(text):
-                self.display_message(text, "red")
-                pass
+                # Starting thread and connecting signals
+                self.server_thread = ServerThread(self.available_drones)
+                self.server_thread.display_messages.connect(lambda (m, c): self.display_message(m, c))
+                self.server_thread.update_crazyflie_status.connect(
+                    lambda (i, m, c): self.update_item_mnessage(i, m, c))
 
-            self.thread.data_downloaded.connect(progress)
-
-
-
-            self.thread.start()
-            # from PyQt5.QtCore import QObject
-            # self.__widget.run_server_button.connect(thread, QtCore.SIGNAL("progress(int, int)"), progress)
-
-
-
+                self.server_thread.start()
+            else:
+                self.__widget.run_server_button.setText("Run")
+                self.server_running = False
+                self.server_thread.stop()
+                self.__widget.connection_button.setEnabled(True)
 
         self.__widget.run_server_button.clicked.connect(handle_click)
 
