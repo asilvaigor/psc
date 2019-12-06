@@ -37,10 +37,14 @@ if __name__ == "__main__":
             print("Unable to connect to drone %s" % drone_number)
             continue
         address_dict[int(drone_number)] = address[0][0]
+        # address_dict[int(drone_number)] = drone_number
         print("Drone %s at address: %s" % (drone_number, address[0][0]))
+        # print("Drone %s at address: %s" % (drone_number, drone_number))
 
     print("Connecting to drones: ", end="")
     print(list(address_dict.keys()))
+    print("Addressees: ", end="")
+    print("{"+str(list(address_dict.values()))[1:-1]+"}")
 
     # Editing connected_drones.txt
     f = open(LOCATION+"/../launch/connected_drones.txt", "w")
@@ -66,6 +70,6 @@ if __name__ == "__main__":
     generated_file += open(LOCATION + "/templates_launch/tail.xml", "r"). \
         read()
 
-    f = open(LOCATION+"/../launch/run_real.launch", "w")
-    f.write(generated_file)
-    f.close()
+    # f = open(LOCATION+"/../launch/run_real.launch", "w")
+    # f.write(generated_file)
+    # f.close()

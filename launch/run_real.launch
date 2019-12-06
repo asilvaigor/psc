@@ -2,9 +2,10 @@
 
 <launch>
 
-<!-- Crazyflie 10 -->
+<!-- Crazyflie -->
 <arg name="cf"/>
-<arg name="uri" default="$(arg cf)" />
+<arg name="radio_id"/>
+<arg name="uri" default="$(arg radio_id)" />
 <arg name="tf_prefix" default="cf$(arg cf)" />
 
 <!-- Parameters -->
@@ -20,10 +21,11 @@
 <arg name="enable_logging_packets" default="True" />
 
 <!-- Launch the server node ! Be sure it's only launch once -->
-<include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">
-</include>
+<!--<include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">-->
+<!--</include>-->
+<!--  TODO: make a generalized file only fr adding the drones-->
 
-<!-- Add the crazyflie-->
+<!-- Add the crazyflie -->
   <group ns="$(arg tf_prefix)">
     <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
       <param name="uri" value="$(arg uri)" />
