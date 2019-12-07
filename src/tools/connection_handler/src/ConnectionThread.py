@@ -4,10 +4,12 @@ from subprocess import Popen, PIPE
 
 from tools.connection_handler.src.ProcessManager import ProcessManager
 
+
 class ConnectionThread(QtCore.QThread):
     update_crazyflie_status = QtCore.pyqtSignal(object)
     add_crazyflie_available = QtCore.pyqtSignal(object)
     remove_crazyflie_available = QtCore.pyqtSignal(object)
+    idle_signal = QtCore.pyqtSignal(object)
 
     def __init__(self, drones_to_connect):
         QtCore.QThread.__init__(self)
@@ -51,6 +53,8 @@ class ConnectionThread(QtCore.QThread):
             output = self.connection_process.stdout.readline()
             if len(output) > 0:
                 decode_line(output)
+
+        self.idle_signal.emit(None)
 
     def force_stop(self):
         """
