@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import rospy
-import time
 import math
 
 from agent.Crazyflie import Crazyflie
@@ -36,5 +35,5 @@ def circle_trajectory(n_pts, r):
 
 if __name__ == '__main__':
     cf = Crazyflie(1)
-    # up_and_down(cf)
-    circle_trajectory(50, 0.8)
+    up_and_down(cf)
+    # circle_trajectory(50, 0.8)

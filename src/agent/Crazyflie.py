@@ -156,6 +156,7 @@ class Crazyflie:
         Stops the drone's motors.
         :param group_mask: TODO: what is this?
         """
+        self.__state_machine.stop()
         self.__services.stop(group_mask)
 
     def __goto(self, goal_stable_pose, relative, duration, group_mask):
