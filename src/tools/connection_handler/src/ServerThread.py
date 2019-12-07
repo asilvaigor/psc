@@ -1,3 +1,5 @@
+import time
+
 import psutil, os, signal
 from PyQt5 import QtCore
 from subprocess import Popen, PIPE
@@ -23,7 +25,12 @@ class ServerThread(QtCore.QThread):
         # Opening server process
         self.server_process = Popen(["roslaunch", "crazyflie_driver", "crazyflie_server.launch"], stdout=PIPE)
 
-        # TODO treat errors and centralize message (in UI)
+        self.server_process.stdout.flush()
+        while self.server_process.poll() is None:
+            # self.server_process.stdout.flush()
+            output = self.server_process.stdout.read()
+            self.server_process.stdout.flush()
+            self.display_messages.emit((output, "blue"))
 
         self.display_messages.emit(("Server online", "darkgreen"))
 

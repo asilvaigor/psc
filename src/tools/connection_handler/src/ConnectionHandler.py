@@ -1,16 +1,16 @@
-import os, sys
+import os
 import signal, psutil
 import ast
 from argparse import ArgumentParser
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from PyQt5.QtWidgets import QWidget, QMessageBox, QListWidgetItem, QLabel
-from PyQt5 import QtCore
 from representations.Constants import N_DRONES
 from subprocess import Popen, PIPE
 
 from tools.connection_handler.src.ServerThread import ServerThread
 from tools.connection_handler.src.ConnectionThread import ConnectionThread
+
 
 class ConnectionHandler(Plugin):
     """
@@ -32,12 +32,11 @@ class ConnectionHandler(Plugin):
         self.__configure_connection_button()
         self.__configure_run_server_button()
         self.__configure_connected_list()
+        self.__configure_status_label()
 
         # State variables for the widget
         self.connection_mode = True
         self.selected_drone = -1
-        # TODO : see if makes sente t still have this dictinary
-        self.process_dict = {}
         self.connection_thread = None
         self.server_thread = None
         self.server_running = False
@@ -73,6 +72,13 @@ class ConnectionHandler(Plugin):
         label = QLabel(formatted_string(drone_id, text, color))
         self.__widget.connected_list.setItemWidget(item, label)
 
+    def __configure_status_label(self):
+        """
+        Sets status label initial text
+        """
+
+        self.display_message("Idle", "black")
+
     def __configure_connection_button(self):
         """
         Configures connection button
@@ -84,64 +90,6 @@ class ConnectionHandler(Plugin):
                 if not drone.isdigit():
                     return None
             return [int(drone) for drone in drones]
-
-        def connect_to_drones(drones_ids):
-            def formatted_string(drone, text, color):
-                black_text = "<font color=\"black\">Drone %s" % str(drone)
-                spaces = ""
-                for i in range(self.connected_drone_line_length - len(black_text) - len(str(drone)) + 20):
-                    spaces += "&nbsp;"
-                color_text = "<font color=\"%s\">%s</font>" % (color, text)
-                return black_text + spaces + color_text
-
-            # Adding widget and text
-            for drone_id in drones_ids:
-                item = QListWidgetItem("", type=drone_id)
-                self.__widget.connected_list.addItem(item)
-                # TODO: change to update in separate thread
-                start_message = "Connecting..."
-                label = QLabel(formatted_string(drone_id, start_message, "blue"))
-                self.__widget.connected_list.setItemWidget(item, label)
-
-            # Getting drones ids
-            process = Popen(["rosrun", "psc", "generate_launchfile.py"] + list(map(str, drones_ids)), stdout=PIPE)
-            read = ""
-            while process.poll() is None:
-                (output, err) = process.communicate()
-                read += output
-            connected_drones = ast.literal_eval(read[read.find('['):read.find(']') + 1])
-            radio_ids = ast.literal_eval("[" + read[read.find('{') + 1:read.find('}')] + "]")
-
-            for drone_id in drones_ids:
-                # Getting the item with id drone id
-                item = next((self.__widget.connected_list.item(i) for i in
-                             range(self.__widget.connected_list.count())
-                             if self.__widget.connected_list.item(i).type() == drone_id), None)
-
-                if drone_id in connected_drones:
-                    message = "Id : todo"
-                    label = QLabel(formatted_string(drone_id, message, "olive"))
-                    self.__widget.connected_list.setItemWidget(item, label)
-                else:
-                    message = "Unable to connect"
-                    label = QLabel(formatted_string(drone_id, message, "red"))
-                    self.__widget.connected_list.setItemWidget(item, label)
-
-            # TODO redo this part
-            for drone in connected_drones:
-                self.available_drones[drone] = radio_ids[connected_drones.index(drone)]
-            # self.run_server(connected_drones, radio_ids)
-            # if radio_id == "":
-            #     message = "Unable to connect"
-            #     label = QLabel(formatted_string(drone_id, start_message, "blue"))
-            #     self.__widget.connected_list.setItemWidget(item, label)
-            #     label.setText(formatted_string(drone_id, message, "red"))
-            # else:
-            #     message = "Connected"
-            #     label.setText(formatted_string(drone_id, message, "darkgreen"))
-            #     cf_process = Popen(["roslaunch", "psc", "run_real.launch",
-            #            "cf:=" + str(drone_id), "radio_id:=" + radio_id])
-            #     self.process_dict[drone_id] = cf_process
 
         def handle_connection_button():
             list_widget = self.__widget.connected_list
@@ -167,46 +115,31 @@ class ConnectionHandler(Plugin):
                         self.display_message(message, "black")
                         drones_to_add += [drone]
                         if drone not in items_ids:
-                            item = QListWidgetItem("", type=drone)
+                            class ListItem(QListWidgetItem):
+                                def __lt__(self, other):
+                                    return self.type() < other.type()
+                            item = ListItem("", type=drone)
                             self.__widget.connected_list.addItem(item)
 
                 # Creating connection thread and connecting signals to thread
                 self.connection_thread = ConnectionThread(drones_to_add)
                 self.connection_thread.update_crazyflie_status.connect(
-                    lambda (i, m, c): self.update_item_message(i, m, c))
+                    lambda (d_id, m, c): self.update_item_message(d_id, m, c))
 
                 def add_available((drone_id, radio_id)):
                     self.available_drones[drone_id] = radio_id
                 self.connection_thread.add_crazyflie_available.connect(add_available)
 
+                def remove_available(drone_id):
+                    if drone_id in self.available_drones:
+                        del self.available_drones[drone_id]
+                self.connection_thread.remove_crazyflie_available.connect(remove_available)
+
                 self.connection_thread.start()
             else:
-                # Killing process
-                try:
-                    if self.selected_drone in self.process_dict:
-                        pro = self.process_dict[self.selected_drone]
-                        children_pids = [x.pid for x in psutil.Process(pro.pid).children(recursive=True)]
-
-                        for pid in children_pids:
-                            os.killpg(pid, signal.SIGINT)
-
-                        # pro.call("exit", shell=True)
-                        # pro.kill()
-                        # sys.stdout.flush()
-                        # os
-                        # s = ""
-                        # children = pro.children(recursive=True)
-                        # for child in children:
-                        #     s+= str(child.pid) + " "
-                        # self.display_message(s+"ola", "red")
-                        # os.killpg(os.getpgid(pro.pid), signal.SIGINT)
-                        os.killpg(os.getpgid(self.server_process.pid), signal.SIGINT)
-                        # sys.stdout.flush()
-                        del self.process_dict[self.selected_drone]
-                    else:
-                        self.display_message("not here", "red")
-                except:
-                    pass
+                # Removing drone from the available drones list
+                if self.selected_drone in self.available_drones:
+                    del self.available_drones[self.selected_drone]
 
                 # Removing from graphical interface
                 items = [list_widget.item(i) for i in range(list_widget.count())]
@@ -289,8 +222,11 @@ class ConnectionHandler(Plugin):
 
     def __shutdown_plugin(self):
         """
-        Stops processes.
+        Stops kills server and open processes
         """
 
-        for key in self.process_dict:
-            self.process_dict[key].kill()
+        # TODO stop connection process and sollve bug in stop server thread
+
+        if self.server_thread is not None:
+            self.server_thread.stop()
+
