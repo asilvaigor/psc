@@ -34,7 +34,7 @@ MAX_ACC_YAW = 0.03  # rad/s^2
 # Margin for a drone to pass next to an obstacle.
 OBSTACLE_MARGIN = 0.2  # m
 
-# Colors
+# Colors for drones
 BLUE = ColorRGBA(0.0, 0.0, 1.0, 1.0)
 RED = ColorRGBA(1.0, 0.0, 0.0, 1.0)
 YELLOW = ColorRGBA(1.0, 1.0, 0.0, 1.0)
@@ -44,8 +44,19 @@ WHITE = ColorRGBA(1.0, 1.0, 1.0, 1.0)
 ORANGE = ColorRGBA(0.9726, 0.5820, 0.0273, 1.0)
 COLORS = [BLUE, YELLOW, PINK, GREEN, WHITE, ORANGE]
 
+# Colors for trajectory
+BLUE_T = ColorRGBA(0.0, 0.0, 1.0, 0.2)
+RED_T = ColorRGBA(1.0, 0.0, 0.0, 0.2)
+YELLOW_T = ColorRGBA(1.0, 1.0, 0.0, 0.2)
+GREEN_T = ColorRGBA(0.0, 1.0, 0.0, 0.2)
+PINK_T = ColorRGBA(1.0, 0.0781, 0.5742, 0.2)
+WHITE_T = ColorRGBA(1.0, 1.0, 1.0, 0.2)
+ORANGE_T = ColorRGBA(0.9726, 0.5820, 0.0273, 0.2)
+COLORS_T = [BLUE_T, YELLOW_T, PINK_T, GREEN_T, WHITE_T, ORANGE_T]
+
 # Marker size
 MARKER_SIZE_X = 0.2
 MARKER_SIZE_Y = 0.05
 MARKER_SIZE_Z = 0.05
-MARKER_SIZES = [MARKER_SIZE_X, MARKER_SIZE_Y, MARKER_SIZE_Z]
+MARKER_ARROW_SIZES = [MARKER_SIZE_X, MARKER_SIZE_Y, MARKER_SIZE_Z]
+MARKER_LINE_SIZE_X = 0.05
