@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="nbQuads" default="1"/>
+  <arg name="mav_name" default="crazyflie"/>
+  <arg name="world_name" default="salle_lix"/>
+  <arg name="debug" default="false"/>
+  <arg name="gui" default="true"/>
+  <arg name="paused" default="false"/>
+
+  <!--  Handler Arguments       -->
+  <arg name="cfPrefix" default="cf" />
+  <arg name="uri" default="INADDR_ANY://19950"/>
+  <arg name="handlerName" default="handler1"/>
+  <arg name="firstIndex" default="1"/>
+
+  <!-- Crazyflie arguments -->
+  <arg name="enable_logging" default="true" />
+  <arg name="enable_parameters" default="true" />
+  <arg name="use_ros_time" default="true" />
+  <arg name="enable_logging_imu" default="false" />
+  <arg name="enable_logging_temperature" default="false" />
+  <arg name="enable_logging_magnetic_field" default="false" />
+  <arg name="enable_logging_pressure" default="false" />
+  <arg name="enable_logging_battery" default="false" />
+  <arg name="enable_logging_packets" default="false" />
+
+  <!-- Some custom blocks for every crazyflie in the environment-->
+  <rosparam>
+      genericLogTopics: ["local_position","target_position"]
+      genericLogTopicFrequencies: [10,10]
+      genericLogTopic_local_position_Variables: ["stateEstimate.x", "stateEstimate.y", "stateEstimate.z", "stabilizer.roll", "stabilizer.pitch", "stabilizer.yaw"]
+      genericLogTopic_target_position_Variables: ["posCtl.targetX", "posCtl.targetY", "posCtl.targetZ", "controller.roll", "controller.pitch", "controller.yaw"]
+  </rosparam>
+
+  <!-- The following line causes gzmsg and gzerr messages to be printed to the console
+      (even when Gazebo is started through roslaunch) -->
+  <arg name="verbose" default="true"/>
+
+  <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find crazyflie_gazebo)/models"/>
+  <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find crazyflie_gazebo)/models"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find crazyflie_gazebo)/worlds/$(arg world_name).world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+
+  <!-- The front propeller are always toward positive x at the beginning -->
+  <arg name="tf_prefix_1" default="$(arg cfPrefix)1" />
+  <arg name="color_prop_front_1" default="Blue"/>
+  <arg name="color_prop_back_1" default="Blue"/>
+  <arg name="x_1" default="0.0" />
+  <arg name="y_1" default="0.0" />
+  <arg name="z_1" default="0.03" />
+
+  <arg name="tf_prefix_2" default="$(arg cfPrefix)2" />
+  <arg name="color_prop_front_2" default="Yellow"/>
+  <arg name="color_prop_back_2" default="Yellow"/>
+  <arg name="x_2" default="0.5" />
+  <arg name="y_2" default="0.0" />
+  <arg name="z_2" default="0.03" />
+
+  <arg name="tf_prefix_3" default="$(arg cfPrefix)3" />
+  <arg name="color_prop_front_3" default="Red"/>
+  <arg name="color_prop_back_3" default="Red"/>
+  <arg name="x_3" default="0.0" />
+  <arg name="y_3" default="0.5" />
+  <arg name="z_3" default="0.03" />
+
+  <arg name="tf_prefix_4" default="$(arg cfPrefix)4" />
+  <arg name="color_prop_front_4" default="Green"/>
+  <arg name="color_prop_back_4" default="Green"/>
+  <arg name="x_4" default="-0.5" />
+  <arg name="y_4" default="0.0" />
+  <arg name="z_4" default="0.03" />
+
+  <arg name="tf_prefix_5" default="$(arg cfPrefix)5" />
+  <arg name="color_prop_front_5" default="White"/>
+  <arg name="color_prop_back_5" default="White"/>
+  <arg name="x_5" default="0.0" />
+  <arg name="y_5" default="-0.5" />
+  <arg name="z_5" default="0.03" />
+
+  <!-- Spawn the crazyflie models -->
+  <group ns="$(arg cfPrefix)1" if="$(eval arg('nbQuads') >= 1)">
+    <include file="$(find crazyflie_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="model" value="$(find crazyflie_gazebo)/models/rotors_description/urdf/$(arg mav_name)_base.xacro" />
+      <arg name="color_prop_front" default="$(arg color_prop_front_1)" />
+      <arg name="color_prop_back" default="$(arg color_prop_back_1)" />
+      <arg name="tf_prefix" value="$(arg tf_prefix_1)"/>
+      <arg name="x" default="$(arg x_1)"/>
+      <arg name="y" default="$(arg y_1)"/>
+      <arg name="z" default="$(arg z_1)"/>
+    </include>
+  </group>
+
+  <group ns="$(arg cfPrefix)2" if="$(eval arg('nbQuads') >= 2)">
+    <include file="$(find crazyflie_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="model" value="$(find crazyflie_gazebo)/models/rotors_description/urdf/$(arg mav_name)_base.xacro" />
+      <arg name="color_prop_front" default="$(arg color_prop_front_2)" />
+      <arg name="color_prop_back" default="$(arg color_prop_back_2)" />
+      <arg name="tf_prefix" value="$(arg tf_prefix_2)"/>
+      <arg name="x" default="$(arg x_2)"/>
+      <arg name="y" default="$(arg y_2)"/>
+      <arg name="z" default="$(arg z_2)"/>
+    </include>
+  </group>
+
+  <group ns="$(arg cfPrefix)3" if="$(eval arg('nbQuads') >= 3)">
+    <include file="$(find crazyflie_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="model" value="$(find crazyflie_gazebo)/models/rotors_description/urdf/$(arg mav_name)_base.xacro" />
+      <arg name="color_prop_front" default="$(arg color_prop_front_3)" />
+      <arg name="color_prop_back" default="$(arg color_prop_back_3)" />
+      <arg name="tf_prefix" value="$(arg tf_prefix_3)"/>
+      <arg name="x" default="$(arg x_3)"/>
+      <arg name="y" default="$(arg y_3)"/>
+      <arg name="z" default="$(arg z_3)"/>
+    </include>
+  </group>
+
+  <group ns="$(arg cfPrefix)4" if="$(eval arg('nbQuads') >= 4)">
+    <include file="$(find crazyflie_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="model" value="$(find crazyflie_gazebo)/models/rotors_description/urdf/$(arg mav_name)_base.xacro" />
+      <arg name="color_prop_front" default="$(arg color_prop_front_4)" />
+      <arg name="color_prop_back" default="$(arg color_prop_back_4)" />
+      <arg name="tf_prefix" value="$(arg tf_prefix_4)"/>
+      <arg name="x" default="$(arg x_4)"/>
+      <arg name="y" default="$(arg y_4)"/>
+      <arg name="z" default="$(arg z_4)"/>
+    </include>
+  </group>
+
+  <group ns="$(arg cfPrefix)5" if="$(eval arg('nbQuads') >= 5)">
+    <include file="$(find crazyflie_gazebo)/launch/spawn_mav.launch">
+      <arg name="mav_name" value="$(arg mav_name)" />
+      <arg name="model" value="$(find crazyflie_gazebo)/models/rotors_description/urdf/$(arg mav_name)_base.xacro" />
+      <arg name="color_prop_front" default="$(arg color_prop_front_5)" />
+      <arg name="color_prop_back" default="$(arg color_prop_back_5)" />
+      <arg name="tf_prefix" value="$(arg tf_prefix_5)"/>
+      <arg name="x" default="$(arg x_5)"/>
+      <arg name="y" default="$(arg y_5)"/>
+      <arg name="z" default="$(arg z_5)"/>
+    </include>
+  </group>
+
+  <!-- Spawn the crazyflie handler model -->
+  <group ns="$(arg handlerName)">
+    <include file="$(find crazyflie_gazebo)/launch/spawn_plugin.launch">
+      <arg name="plugin_name" value="$(arg handlerName)" />
+      <arg name="nbQuads" value="$(arg nbQuads)" />
+      <arg name="cfPrefix" value="$(arg cfPrefix)" />
+      <arg name="uri" value="$(arg uri)" />
+      <arg name="firstIndex" value="$(arg firstIndex)" />
+
+      <arg name="enable_logging" value="$(arg enable_logging)"/>
+      <arg name="enable_parameters" value="$(arg enable_parameters)"/>
+      <arg name="use_ros_time" value="$(arg use_ros_time)"/>
+      <arg name="enable_logging_imu" value="$(arg enable_logging_imu)"/>
+      <arg name="enable_logging_temperature" value="$(arg enable_logging_temperature)"/>
+      <arg name="enable_logging_magnetic_field" value="$(arg enable_logging_magnetic_field)"/>
+      <arg name="enable_logging_pressure" value="$(arg enable_logging_pressure)"/>
+      <arg name="enable_logging_battery" value="$(arg enable_logging_battery)"/>
+      <arg name="enable_logging_packets" value="$(arg enable_logging_packets)"/>
+    </include>
+  </group>
+
+</launch>

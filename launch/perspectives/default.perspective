@@ -5,7 +5,7 @@
       "keys": {
         "running-plugins": {
           "type": "repr",
-          "repr": "{u'MultiplotPlugin': [1], u'rqt_rviz/RViz': [1]}"
+          "repr": "{u'psc/SwarmController': [1], u'psc/ConnectionHandler': [1], u'rqt_rviz/RViz': [1]}"
         }
       },
       "groups": {
@@ -44,6 +44,28 @@
             }
           }
         },
+        "plugin__psc__ConnectionHandler__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ConnectionHandlerUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'connection_handler'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
         "plugin__rqt_topic__TopicPlugin__1": {
           "keys": {},
           "groups": {
@@ -70,6 +92,28 @@
                 "dock_widget_title": {
                   "type": "repr",
                   "repr": "u'Topic Monitor'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__psc__SwarmController__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__SwarmControllerUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'swarm_controller'"
                 }
               },
               "groups": {}
@@ -118,13 +162,13 @@
       "keys": {
         "geometry": {
           "type": "repr(QByteArray.hex)",
-          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb00020000000002d20000001800000c900000059f000002d20000001800000c900000059f00000001000000000a00')",
-          "pretty-print": "                         "
+          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb0002000000000041000000180000059f0000038300000041000000180000059f00000383000000000000000005a0')",
+          "pretty-print": "     A       A           "
         },
         "state": {
           "type": "repr(QByteArray.hex)",
-          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd0000000200000002000009bf00000478fc0100000002fb0000004c007200710074005f0074006f007000690063005f005f0054006f0070006900630050006c007500670069006e005f005f0031005f005f0054006f0070006900630057006900640067006500740100000000000003bf0000000000000000fb00000026007200710074005f007200760069007a005f005f005200560069007a005f005f0031005f005f0100000000000009bf0000030000ffffff00000003000009bf000000f4fc0100000001fb00000046004d0075006c007400690070006c006f00740050006c007500670069006e005f005f0031005f005f004d0075006c007400690070006c006f00740057006900640067006500740100000000000009bf0000038b00ffffff000009bf0000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
-          "pretty-print": "                 Lrqt_topic__TopicPlugin__1__TopicWidget          &rqt_rviz__RViz__1__                   FMultiplotPlugin__1__MultiplotWidget                            6MinimizedDockWidgetsToolbar        "
+          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd00000002000000020000055f00000356fc0100000003fb0000004c007200710074005f0074006f007000690063005f005f0054006f0070006900630050006c007500670069006e005f005f0031005f005f0054006f0070006900630057006900640067006500740100000000000003bf0000000000000000fc000000000000021c000000ff00fffffffc0200000002fb0000005c007000730063005f005f0043006f006e006e0065006300740069006f006e00480061006e0064006c00650072005f005f0031005f005f0043006f006e006e0065006300740069006f006e00480061006e0064006c006500720055006901000000000000013e0000007200fffffffb00000054007000730063005f005f0053007700610072006d0043006f006e00740072006f006c006c00650072005f005f0031005f005f0053007700610072006d0043006f006e00740072006f006c006c00650072005500690100000144000002120000007200fffffffb00000026007200710074005f007200760069007a005f005f005200560069007a005f005f0031005f005f01000002220000033d0000030000ffffff00000003000004fb000000eefc0100000001fb00000046004d0075006c007400690070006c006f00740050006c007500670069006e005f005f0031005f005f004d0075006c007400690070006c006f007400570069006400670065007401000000000000038b00000000000000000000055f0000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
+          "pretty-print": "                 Lrqt_topic__TopicPlugin__1__TopicWidget                                                                        > r                                                D   r                         \" =                                                            _                                                      "
         }
       },
       "groups": {

@@ -61,15 +61,11 @@ class Crazyflie:
 
     def pause(self):
         """
-        Makes the drone inactive if it is moving.
+        Makes the drone inactive, stopping its current movement.
         """
-        pass
-
-    def unpause(self):
-        """
-        Continues the drone's previous movement if it was paused.
-        """
-        pass
+        if not self.is_inactive():
+            self.goto(self.stable_pose, duration=1)  # Tested a bit and it seems to work with 1.
+            # Leaving empty the drone falls.
 
     def follow_trajectory(self, trajectory):
         # self.__services.upload_trajectory(trajectory_id, piece_offset, trajectory)
@@ -160,6 +156,7 @@ class Crazyflie:
         Stops the drone's motors.
         :param group_mask: TODO: what is this?
         """
+        self.__state_machine.stop()
         self.__services.stop(group_mask)
 
     def __goto(self, goal_stable_pose, relative, duration, group_mask):
@@ -175,9 +172,6 @@ class Crazyflie:
         if duration == -1:
             duration = max(abs(delta.x) / MAX_VEL_X, abs(delta.y) / MAX_VEL_Y,
                            abs(delta.z) / MAX_VEL_Z, abs(delta.yaw) / MAX_VEL_YAW)
-
-        # TODO: analyze this
-        # print(duration, self.stable_pose.yaw, goal_stable_pose.yaw)
 
         if self.__state_machine.is_stopped():
             self.__takeoff(1)  # Tested a bit and 1m seems to work. I tried putting a really small

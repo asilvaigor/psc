@@ -2,3 +2,5 @@
 *.pyc
 
 /venv
+
+launch/connected_drones.txt

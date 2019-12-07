@@ -1,13 +1,16 @@
+import math
 import os
+import subprocess
 from argparse import ArgumentParser
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from PyQt5.QtWidgets import QWidget, QMessageBox
 from PyQt5.QtGui import QIcon
-from geometry_msgs.msg import Pose
+from PyQt5.QtCore import Qt
 
 from agent.Swarm import Swarm
-from representations.Constants import PAUSED, RUNNING
+from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z
+from representations.StablePose import StablePose
 
 
 class SwarmController(Plugin):
@@ -25,24 +28,39 @@ class SwarmController(Plugin):
         self.__configure_plugin(context)
 
         self.__swarm = Swarm()
+        self.__goal_pose = StablePose()
         self.__is_simulated = False
-        self.__selected_drone_id = 0
-        self.__goal_pose = Pose()
-        self.__state = PAUSED
+        self.__simulated_drones_count = 0
+        self.__is_running = False
+
+        self.__simulated_server_processes = []
+        self.__gazebo_process = None
 
         self.__configure_drones_combo_box()
         self.__configure_run_pause_buttons()
         self.__configure_shutdown_buttons()
         self.__configure_connected_button()
+        self.__configure_run_gazebo_button()
+        self.__configure_lists()
+        self.__configure_swap_button()
+        self.__configure_edits()
+        self.__configure_goto_button()
 
+        self.__swarm.run_thread()
         context.add_widget(self.__widget)
+
+    def shutdown_plugin(self):
+        """
+        Stops processes.
+        """
+        self.__kill_simulation()
+        self.__swarm.stop_thread()
 
     def __configure_drones_combo_box(self):
         """
         Configures the combo box at the top of the plugin, which selects if real drones or simulated
         will be used.
         """
-
         def handle_index_change(idx):
             if idx == 0:
                 self.__is_simulated = False
@@ -51,7 +69,11 @@ class SwarmController(Plugin):
                 self.__widget.connected_push_button.setIcon(icon.fromTheme("view-refresh"))
                 self.__widget.connected_push_button.setToolTip(
                     "Update the status of connection of the drones.")
-                self.__widget.connected_push_button.animateClick()
+                self.__widget.swap_push_button.setEnabled(True)
+                self.__widget.run_gazebo_push_button.setEnabled(False)
+                self.__widget.run_gazebo_push_button.setText("Run Gazebo")
+
+                self.__kill_simulation()
             else:
                 self.__is_simulated = True
                 self.__widget.connected_push_button.setText("Add")
@@ -59,7 +81,13 @@ class SwarmController(Plugin):
                 self.__widget.connected_push_button.setIcon(icon.fromTheme("list-add"))
                 self.__widget.connected_push_button.setToolTip(
                     "Adds a new drone to be simulated.")
-                self.__widget.connected_push_button.animateClick()
+
+                self.__widget.swap_push_button.setEnabled(False)
+                self.__widget.run_gazebo_push_button.setEnabled(True)
+
+            self.__widget.connected_push_button.setEnabled(True)
+            self.__widget.connected_push_button.animateClick()
+            self.__clear_drones()
 
         self.__widget.drones_combo_box.currentIndexChanged.connect(handle_index_change)
 
@@ -74,14 +102,14 @@ class SwarmController(Plugin):
         self.__widget.pause_push_button.animateClick()
 
         def handle_pause_button():
-            if self.__state == RUNNING:
+            if self.__is_running:
                 self.__swarm.pause()
-                self.__state = PAUSED
+                self.__is_running = False
 
         def handle_run_button():
-            if self.__state == PAUSED:
+            if not self.__is_running:
                 self.__swarm.unpause(self.__goal_pose)
-                self.__state = RUNNING
+                self.__is_running = True
 
         self.__widget.pause_push_button.clicked.connect(handle_pause_button)
         self.__widget.run_push_button.clicked.connect(handle_run_button)
@@ -98,7 +126,14 @@ class SwarmController(Plugin):
                 if is_all:
                     self.__swarm.shutdown_drone()
                 else:
-                    self.__swarm.shutdown_drone(self.__selected_drone_id)
+                    # Find the selected drone in the lists
+                    if len(self.__widget.inuse_list.selectedItems()) == 1:
+                        idx = int(self.__widget.inuse_list.selectedItems()[0].text())
+                        self.__swarm.shutdown_drone(idx)
+                    elif len(self.__widget.connected_list.selectedItems()) == 1:
+                        idx = int(self.__widget.connected_list.selectedItems()[0].text())
+                        self.__swarm.shutdown_drone(idx)
+
                 self.__widget.pause_push_button.animateClick()
 
             confirmation.show()
@@ -111,13 +146,187 @@ class SwarmController(Plugin):
         Configures Update/Add push button according if its in simulation or not.
         """
         def handle_connected_button():
-            # TODO
             if self.__is_simulated:
-                self.__widget.connected_list.addItem()
+                if self.__simulated_drones_count == 5:
+                    return
+                self.__simulated_drones_count += 1
+                self.__widget.connected_list.addItem(str(self.__simulated_drones_count))
+
+                # Opens cf2 file
+                file_path = os.path.realpath(
+                    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+                path = file_path + "/../../../../../sim_cf/crazyflie-firmware/sitl_make/build/cf2"
+                self.__simulated_server_processes.append(subprocess.Popen(
+                    [path, str(self.__simulated_drones_count)]))
             else:
-                pass
+                # First read from txt
+                file_path = os.path.realpath(
+                    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+                path = file_path + "/../../../../launch/connected_drones.txt"
+                f = open(path, "r")
+                connected_drones = set()
+                for s in f.read().split(' '):
+                    if len(s) > 0:
+                        connected_drones.add(int(s))
+
+                # Update both lists with this function
+                def update_list_widget(list_widget):
+                    for row in range(list_widget.count()):
+                        idx = int(list_widget.item(row).text())
+                        if idx not in connected_drones:
+                            list_widget.takeItem(row)
+                            row -= 1
+                        else:
+                            connected_drones.remove(idx)
+
+                update_list_widget(self.__widget.inuse_list)
+                update_list_widget(self.__widget.connected_list)
+
+                for idx in connected_drones:
+                    self.__widget.connected_list.addItem(str(idx))
 
         self.__widget.connected_push_button.clicked.connect(handle_connected_button)
+
+    def __configure_run_gazebo_button(self):
+        """
+        Runs the simulated crazyflie in cf2 file, and runs gazebo according to the number of drones
+        used.
+        """
+        def handle_run_gazebo_button():
+            if self.__gazebo_process:
+                self.__kill_simulation()
+                self.__widget.connected_push_button.setEnabled(True)
+                self.__widget.swap_push_button.setEnabled(False)
+                self.__widget.run_gazebo_push_button.setText("Run Gazebo")
+                self.__clear_drones()
+            else:
+                file_path = os.path.realpath(
+                    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+                path = file_path + "/../../../../launch/run_simulated.launch"
+
+                self.__gazebo_process = subprocess.Popen(
+                    ["roslaunch", path, "nbQuads:=" + str(self.__simulated_drones_count)])
+
+                self.__widget.connected_push_button.setEnabled(False)
+                self.__widget.swap_push_button.setEnabled(True)
+                self.__widget.run_gazebo_push_button.setText("Kill Gazebo")
+
+        self.__widget.run_gazebo_push_button.clicked.connect(handle_run_gazebo_button)
+        self.__widget.run_gazebo_push_button.setEnabled(False)
+
+    def __configure_lists(self):
+        """
+        Configure the lists so that only one drone is selected at a time.
+        """
+        def handle_item_change(is_inuse_list=True):
+            if is_inuse_list:
+                self.__widget.connected_list.clearSelection()
+            else:
+                self.__widget.inuse_list.clearSelection()
+
+        self.__widget.inuse_list.itemClicked.connect(handle_item_change)
+        self.__widget.connected_list.itemClicked.connect(lambda: handle_item_change(False))
+
+    def __configure_swap_button(self):
+        """
+        Configures swap button.
+        """
+        def handle_swap_button():
+            def swap(list1, list2):
+                if len(list1.selectedIndexes()) == 1:
+                    row = int(list1.selectedIndexes()[0].row())
+                    idx = int(list1.selectedItems()[0].text())
+                    list1.takeItem(row)
+                    list2.addItem(str(idx))
+                    list1.clearSelection()
+                    if list1 == self.__widget.inuse_list:
+                        self.__swarm.remove_drone(idx)
+                    else:
+                        self.__widget.setCursor(Qt.WaitCursor)
+                        self.__swarm.add_drone(idx)
+                        self.__widget.setCursor(Qt.ArrowCursor)
+
+                    return True
+                return False
+
+            swap(self.__widget.connected_list, self.__widget.inuse_list)
+            swap(self.__widget.inuse_list, self.__widget.connected_list)
+
+        self.__widget.swap_push_button.clicked.connect(handle_swap_button)
+
+    def __configure_edits(self):
+        """
+        Synchronizes the SpinBoxes for x, y, z and yaw with the label on the bottom.
+        """
+
+        def synchronize_labels():
+            """
+            Changes variables and synchronizes spinboxes with label.
+            """
+            self.__goal_pose.x = self.__widget.x_edit.value()
+            self.__goal_pose.y = self.__widget.y_edit.value()
+            self.__goal_pose.z = self.__widget.z_edit.value()
+            self.__goal_pose.yaw = math.radians(self.__widget.yaw_edit.value())
+
+            s = "Goal: ("
+            s += str(self.__goal_pose.x) + ", "
+            s += str(self.__goal_pose.y) + ", "
+            s += str(self.__goal_pose.z) + ", "
+            s += str(int(math.degrees(self.__goal_pose.yaw))) + ")"
+            self.__widget.coordinates_label.setText(s)
+
+        self.__widget.x_edit.setSingleStep(0.2)
+        self.__widget.x_edit.setMinimum(MIN_X)
+        self.__widget.x_edit.setMaximum(MAX_X)
+        self.__widget.x_edit.valueChanged.connect(synchronize_labels)
+
+        self.__widget.y_edit.setSingleStep(0.2)
+        self.__widget.y_edit.setMinimum(MIN_Y)
+        self.__widget.y_edit.setMaximum(MAX_Y)
+        self.__widget.y_edit.valueChanged.connect(synchronize_labels)
+
+        self.__widget.z_edit.setSingleStep(0.2)
+        self.__widget.z_edit.setMinimum(MIN_Z)
+        self.__widget.z_edit.setMaximum(MAX_Z)
+        self.__widget.z_edit.valueChanged.connect(synchronize_labels)
+
+        self.__widget.yaw_edit.setSingleStep(30)
+        self.__widget.yaw_edit.setMinimum(-180)
+        self.__widget.yaw_edit.setMaximum(180)
+        self.__widget.yaw_edit.valueChanged.connect(synchronize_labels)
+
+    def __configure_goto_button(self):
+        """
+        Sets goto button functionality.
+        """
+        def handle_goto_button():
+            if not self.__is_running:
+                if len(self.__widget.inuse_list.selectedItems()) == 1:
+                    idx = int(self.__widget.inuse_list.selectedItems()[0].text())
+                    self.__swarm.goto_drone(idx, self.__goal_pose)
+
+        self.__widget.goto_push_button.clicked.connect(handle_goto_button)
+
+    def __kill_simulation(self):
+        """
+        Kills gazebo and cf2 processes if they exist.
+        """
+        if self.__gazebo_process:
+            subprocess.call(['killall', '-9', 'gzclient'])
+            subprocess.call(['killall', '-9', 'gzserver'])
+            self.__gazebo_process = None
+        while self.__simulated_server_processes:
+            p = self.__simulated_server_processes.pop()
+            p.kill()
+
+    def __clear_drones(self):
+        while self.__widget.inuse_list.count() > 0:
+            self.__widget.inuse_list.takeItem(0)
+        while self.__widget.connected_list.count() > 0:
+            self.__widget.connected_list.takeItem(0)
+        self.__simulated_drones_count = 0
+
+        self.__swarm.remove_drone()
 
     def __configure_plugin(self, context):
         """

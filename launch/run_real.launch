@@ -2,9 +2,11 @@
 
 <launch>
 
-<!-- Crazyflie 8 -->
-<arg name="uri_8" default="radio://0/80/2M/E7E7E7E708" />
-<arg name="tf_prefix_8" default="cf8" />
+<!-- Crazyflie -->
+<arg name="cf"/>
+<arg name="radio_id"/>
+<arg name="uri" default="$(arg radio_id)" />
+<arg name="tf_prefix" default="cf$(arg cf)" />
 
 <!-- Parameters -->
 <arg name="roll_trim" default="0" />
@@ -19,14 +21,15 @@
 <arg name="enable_logging_packets" default="True" />
 
 <!-- Launch the server node ! Be sure it's only launch once -->
-<include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">
-</include>
+<!--<include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">-->
+<!--</include>-->
+<!--  TODO: make a generalized file only fr adding the drones-->
 
-<!-- Add the crazyflie 8 -->
-  <group ns="$(arg tf_prefix_8)">
+<!-- Add the crazyflie -->
+  <group ns="$(arg tf_prefix)">
     <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
-      <param name="uri" value="$(arg uri_8)" />
-      <param name="tf_prefix" value="$(arg tf_prefix_8)" />
+      <param name="uri" value="$(arg uri)" />
+      <param name="tf_prefix" value="$(arg tf_prefix)" />
       <param name="roll_trim" value="$(arg roll_trim)" />
       <param name="pitch_trim" value="$(arg pitch_trim)" />
       <param name="enable_logging" value="$(arg enable_logging)" />

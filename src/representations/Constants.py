@@ -3,6 +3,9 @@ from std_msgs.msg import ColorRGBA
 # Rate to run the main loop to control the drones
 RATE = 30  # Hz
 
+# Number of drones
+N_DRONES = 12
+
 # Room limits for the drones to be in.
 # TODO: put good values
 MIN_X = -0.5  # m
@@ -10,14 +13,14 @@ MAX_X = 0.5  # m
 MIN_Y = -0.5  # m
 MAX_Y = 0.5  # m
 MIN_Z = 0  # m
-MAX_Z = 1  # m
+MAX_Z = 1.5  # m
 
 # Maximum velocities
 # TODO: put good values
 MAX_VEL_X = 0.375  # m/s
 MAX_VEL_Y = 0.375  # m/s
 MAX_VEL_Z = 0.375  # m/s
-MAX_VEL_YAW = 0.05  # rad/s
+MAX_VEL_YAW = 0.5  # rad/s
 
 # Maximum acceleration
 # TODO: put good values
