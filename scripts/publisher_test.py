@@ -10,7 +10,6 @@ from tools.telemetry.VisualizationPublisher import VisualizationPublisher
 
 
 # Testing the class VisualizationPublisher.py
-# It hasn't worked yet
 
 def up_and_down(cf):
     rospy.init_node("publisher_test")

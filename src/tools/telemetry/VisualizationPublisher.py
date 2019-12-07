@@ -23,6 +23,7 @@ class VisualizationPublisher:
             drones_markers.markers.append(self.__visualize_drone(drone))
 
         # Publish the array of markers
+
         publisher.publish(drones_markers)
 
     def __visualize_drone(self, drone):
@@ -31,6 +32,11 @@ class VisualizationPublisher:
         dronemarker.header.frame_id = str(drone.id)
         dronemarker.type = dronemarker.ARROW
         dronemarker.action = dronemarker.ADD
+
+        #drone_trajectory.header.frame_id = Marker();
+        #drone_trajectory = Marker();
+        #drone_trajectory = Marker();
+        #drone_trajectory = Marker();
 
         # Size of the marker
         dronemarker.scale.x = MARKER_SIZES[0]
