@@ -1,6 +1,5 @@
 import os
-import signal, psutil
-import ast
+import time
 from argparse import ArgumentParser
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -91,7 +90,7 @@ class ConnectionHandler(Plugin):
                     return None
             return [int(drone) for drone in drones]
 
-        def handle_connection_button():
+        def handle_click():
             list_widget = self.__widget.connected_list
 
             if self.connection_mode:
@@ -152,7 +151,7 @@ class ConnectionHandler(Plugin):
                 self.change_to_connection_mode(True)
                 self.selected_drone = -1
 
-        self.__widget.connection_button.clicked.connect(handle_connection_button)
+        self.__widget.connection_button.clicked.connect(handle_click)
 
     def __configure_run_server_button(self):
         """
@@ -170,13 +169,17 @@ class ConnectionHandler(Plugin):
                 self.server_thread.display_messages.connect(lambda (m, c): self.display_message(m, c))
                 self.server_thread.update_crazyflie_status.connect(
                     lambda (i, m, c): self.update_item_message(i, m, c))
+                self.server_thread.stop_server.connect(stop_server)
 
                 self.server_thread.start()
             else:
-                self.__widget.run_server_button.setText("Run")
-                self.server_running = False
                 self.server_thread.stop()
-                self.__widget.connection_button.setEnabled(True)
+
+        def stop_server():
+            # Actions to be taken when stopping the server
+            self.__widget.run_server_button.setText("Run")
+            self.server_running = False
+            self.__widget.connection_button.setEnabled(True)
 
         self.__widget.run_server_button.clicked.connect(handle_click)
 
@@ -222,11 +225,12 @@ class ConnectionHandler(Plugin):
 
     def __shutdown_plugin(self):
         """
-        Stops kills server and open processes
+        Kills server and open processes
         """
 
-        # TODO stop connection process and sollve bug in stop server thread
-
         if self.server_thread is not None:
-            self.server_thread.stop()
+            self.server_thread.force_stop()
+
+        if self.connection_thread is not None:
+            self.connection_thread.force_stop()
 

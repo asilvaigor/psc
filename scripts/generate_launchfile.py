@@ -29,17 +29,17 @@ if __name__ == "__main__":
             if not retry:
                 break
             if len(address) <= 0:
-                print("Unable to connect to drone %s retrying %d/%d..." % (drone_number, i+1, RETRIES))
+                print("Unable to connect to drone %s retrying %02d/%d..." % (drone_number, i+1, RETRIES), flush=True)
             else:
                 continue
             address = cflib.crtp.scan_interfaces(number)
         if len(address) <= 0:
-            print("Unable to connect to drone %s" % drone_number)
+            print("Unable to connect to drone %s" % drone_number, flush=True)
             continue
         address_dict[int(drone_number)] = address[0][0]
         # address_dict[int(drone_number)] = drone_number
-        print("Drone %s at address: %s" % (drone_number, address[0][0]))
-        # print("Drone %s at address: %s" % (drone_number, drone_number))
+        print("Drone %s at address: %s" % (drone_number, address[0][0]), flush=True)
+        # print("Drone %s at address: %s" % (drone_number, drone_number), flush=True)
 
     print("Connecting to drones: ", end="")
     print(list(address_dict.keys()))
@@ -70,6 +70,7 @@ if __name__ == "__main__":
     generated_file += open(LOCATION + "/templates_launch/tail.xml", "r"). \
         read()
 
+    # TODO check the connection with the swarm controller plugin
     # f = open(LOCATION+"/../launch/run_real.launch", "w")
     # f.write(generated_file)
     # f.close()
