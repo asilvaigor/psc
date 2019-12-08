@@ -7,6 +7,7 @@ from representations.Constants import COLORS_T
 from representations.Constants import MARKER_ARROW_SIZES
 from representations.Constants import MARKER_LINE_SIZE_X
 
+
 class VisualizationPublisher:
 
     def __init__(self, drones):
@@ -16,7 +17,7 @@ class VisualizationPublisher:
         self.__drones = drones
         self.__trajectory_markers = MarkerArray()
         for drone in self.__drones.values():
-            self.__add_in_trajectory(drone)
+            self.add_in_trajectory(drone)
 
     def visualize(self):
         topic = 'visualization_drones'
@@ -34,10 +35,8 @@ class VisualizationPublisher:
         self.__update_trajectory()
 
         # Publish the array of markers and the trajectory
-
         publisher.publish(drones_markers)
         publisher_trajectory.publish(self.__trajectory_markers)
-
 
     def __visualize_drone(self, drone):
         # Show each drone
@@ -68,7 +67,7 @@ class VisualizationPublisher:
         p = Point(drone.pose.position.x, drone.pose.position.y, drone.pose.position.z)
         return p
 
-    def __add_in_trajectory(self, drone):
+    def add_in_trajectory(self, drone):
         # Characteristics of each marker
         line_markers = Marker()
         line_markers.header.frame_id = str(drone.id)
@@ -88,3 +87,8 @@ class VisualizationPublisher:
 
         # Add it in our marker array
         self.__trajectory_markers.markers.append(line_markers)
+
+    def remove_drone(self, drone_id=0):
+        for m in self.__trajectory_markers.markers:
+            if drone_id == 0 or int(m.header.frame_id) == drone_id:
+                del m

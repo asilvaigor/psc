@@ -35,7 +35,7 @@ class Swarm:
         self.__perception = Perception()
         self.__visualization_publisher = VisualizationPublisher(self.__drones)
         self.__lock = threading.Lock()
-        self.__is_stopped = False
+        self.__terminated = False
 
     def run_thread(self):
         """
@@ -43,7 +43,7 @@ class Swarm:
         and updates visualizer. The thread will run until stop_thread is called.
         """
         def pipeline():
-            while not rospy.is_shutdown() and not self.__is_stopped:
+            while not rospy.is_shutdown() and not self.__terminated:
                 cur_t = time.time()
                 with self.__lock:
                     obstacle_collection = self.__perception.perceive()
@@ -60,7 +60,7 @@ class Swarm:
         Stops the swarm thread from running.
         """
         with self.__lock:
-            self.__is_stopped = True
+            self.__terminated = True
 
     def unpause(self, goal_pose):
         """
@@ -107,6 +107,7 @@ class Swarm:
         """
         with self.__lock:
             self.__drones[drone_id] = Crazyflie(drone_id)
+            self.__visualization_publisher.add_in_trajectory(self.__drones[drone_id])
 
     def remove_drone(self, drone_id=0):
         """
@@ -114,6 +115,7 @@ class Swarm:
         :param drone_id: Id of the drone to be removed.
         """
         with self.__lock:
+            self.__visualization_publisher.remove_drone(drone_id)
             if drone_id == 0:
                 self.__drones.clear()
             else:

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import rospy
 import time
 from crazyflie_driver.msg import GenericLogData
@@ -199,7 +200,9 @@ class Crazyflie:
         self.__pose.position.x = data.values[0]
         self.__pose.position.y = data.values[1]
         self.__pose.position.z = data.values[2]
-        quaternion = quaternion_from_euler(data.values[3], data.values[4], data.values[5])
+        quaternion = quaternion_from_euler(math.radians(data.values[3]),
+                                           math.radians(data.values[4]),
+                                           math.radians(data.values[5]))
         self.__pose.orientation.x = quaternion[0]
         self.__pose.orientation.y = quaternion[1]
         self.__pose.orientation.z = quaternion[2]
