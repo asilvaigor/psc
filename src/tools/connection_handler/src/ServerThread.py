@@ -46,7 +46,7 @@ class ServerThread(QtCore.QThread):
                 err = str(err)
                 if len(err) > 0:
                     # Treating no USB device error
-                    if err.find("No matching USB Device"):
+                    if err.find("No matching USB Device") >= 0:
                         self.display_messages.emit(("USB radio not detected", "red"))
                         time.sleep(NO_USB_DELAY)
                         self.working = False

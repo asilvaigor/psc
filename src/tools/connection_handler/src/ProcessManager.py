@@ -6,6 +6,9 @@ class ProcessManager:
         self.process = process
 
     def close_all_child(self):
+        if self.process is None or self.process.poll() is not None:
+            return
+
         # Getting child processes
         children_pids = [x.pid for x in psutil.Process(self.process.pid).children(recursive=True)]
 
@@ -14,5 +17,8 @@ class ProcessManager:
             os.killpg(pid, signal.SIGINT)
 
     def sigint(self):
+        if self.process is None or self.process.poll() is not None:
+            return
+
         # Sending sigint signal
         os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)

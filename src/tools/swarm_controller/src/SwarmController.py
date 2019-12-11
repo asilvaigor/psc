@@ -1,5 +1,6 @@
 import math
 import os
+import signal
 import subprocess
 from argparse import ArgumentParser
 from qt_gui.plugin import Plugin
@@ -88,6 +89,10 @@ class SwarmController(Plugin):
             self.__widget.connected_push_button.setEnabled(True)
             self.__widget.connected_push_button.animateClick()
             self.__clear_drones()
+            # Restarting swarm to make sure
+            self.__swarm.stop_thread()
+            self.__swarm = Swarm()
+            self.__swarm.run_thread()
 
         self.__widget.drones_combo_box.currentIndexChanged.connect(handle_index_change)
 
@@ -236,15 +241,28 @@ class SwarmController(Plugin):
                 if len(list1.selectedIndexes()) == 1:
                     row = int(list1.selectedIndexes()[0].row())
                     idx = int(list1.selectedItems()[0].text())
-                    list1.takeItem(row)
-                    list2.addItem(str(idx))
-                    list1.clearSelection()
+
                     if list1 == self.__widget.inuse_list:
                         self.__swarm.remove_drone(idx)
                     else:
-                        self.__widget.setCursor(Qt.WaitCursor)
-                        self.__swarm.add_drone(idx)
-                        self.__widget.setCursor(Qt.ArrowCursor)
+                        # Using a timeout to try to add drone
+                        def handler(signum, frame):
+                            raise Exception("timeout")
+
+                        try:
+                            signal.signal(signal.SIGALRM, handler)
+                            signal.alarm(1)
+                            self.__widget.setCursor(Qt.WaitCursor)
+                            self.__swarm.add_drone(idx)
+                            self.__widget.setCursor(Qt.ArrowCursor)
+                            signal.alarm(0)
+                        except Exception:
+                            self.__widget.setCursor(Qt.ArrowCursor)
+                            return False
+
+                    list1.takeItem(row)
+                    list2.addItem(str(idx))
+                    list1.clearSelection()
 
                     return True
                 return False
@@ -325,8 +343,6 @@ class SwarmController(Plugin):
         while self.__widget.connected_list.count() > 0:
             self.__widget.connected_list.takeItem(0)
         self.__simulated_drones_count = 0
-
-        self.__swarm.remove_drone()
 
     def __configure_plugin(self, context):
         """

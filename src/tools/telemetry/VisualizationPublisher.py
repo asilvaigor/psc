@@ -18,6 +18,7 @@ class VisualizationPublisher:
         self.__trajectory_markers = MarkerArray()
         for drone in self.__drones.values():
             self.add_in_trajectory(drone)
+        self.__drone_color_map = {}
 
     def visualize(self):
         topic = 'visualization_drones'
@@ -51,7 +52,7 @@ class VisualizationPublisher:
         drone_marker.scale.z = MARKER_ARROW_SIZES[2]
 
         # Color of the marker
-        drone_marker.color = COLORS[drone.id - 1]
+        drone_marker.color = COLORS[self.__drone_color_map[drone.id]]
 
         # Position of the marker
         drone_marker.pose = drone.pose
@@ -78,7 +79,9 @@ class VisualizationPublisher:
         line_markers.scale.x = MARKER_LINE_SIZE_X
 
         # Color of the marker
-        line_markers.color = COLORS_T[drone.id - 1]
+        cnt = len(self.__drone_color_map)
+        self.__drone_color_map[drone.id] = cnt
+        line_markers.color = COLORS_T[self.__drone_color_map[drone.id]]
 
         # Position of the marker - we suppose here that the drone
         # has an initial position before starting to move
@@ -89,6 +92,7 @@ class VisualizationPublisher:
         self.__trajectory_markers.markers.append(line_markers)
 
     def remove_drone(self, drone_id=0):
+        # TODO: this isnt working!! Marker still exists
         for m in self.__trajectory_markers.markers:
             if drone_id == 0 or int(m.header.frame_id) == drone_id:
                 del m

@@ -268,7 +268,7 @@ class ConnectionHandler(Plugin):
             self.__widget.setWindowTitle(self.__widget.windowTitle() +
                                          (' (%d)' % context.serial_number()))
 
-    def __shutdown_plugin(self):
+    def shutdown_plugin(self):
         """
         Kills server and open processes
         """
