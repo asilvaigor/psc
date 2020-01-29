@@ -107,7 +107,7 @@ class Swarm:
         """
         with self.__lock:
             self.__drones[drone_id] = Crazyflie(drone_id)
-            self.__visualization_publisher.add_in_trajectory(self.__drones[drone_id])
+            self.__visualization_publisher.add_in_trajectory(self.__drones, self.__drones[drone_id])
 
     def remove_drone(self, drone_id=0):
         """
@@ -115,8 +115,8 @@ class Swarm:
         :param drone_id: Id of the drone to be removed.
         """
         with self.__lock:
-            self.__visualization_publisher.remove_drone(drone_id)
             if drone_id == 0:
                 self.__drones.clear()
             else:
                 del self.__drones[drone_id]
+            self.__visualization_publisher.remove_drone(self.__drones, drone_id)
