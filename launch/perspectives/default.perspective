@@ -24,7 +24,7 @@
                 },
                 "dock_widget_title": {
                   "type": "repr",
-                  "repr": "u'rviz_configuration.rviz[*] - RViz'"
+                  "repr": "u'config.rviz[*] - RViz'"
                 }
               },
               "groups": {}

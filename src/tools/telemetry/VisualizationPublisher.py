@@ -30,10 +30,12 @@ class VisualizationPublisher:
     def visualize(self):
         topic = 'visualization_drones'
         topic_trajectory = 'visualization_trajectory'
+
         # Review the queue_size
-        publisher = rospy.Publisher(topic, MarkerArray, queue_size=10)
-        publisher_trajectory = rospy.Publisher(topic_trajectory, MarkerArray, queue_size=10)
+        publisher = rospy.Publisher(topic, MarkerArray, queue_size=100)
+        publisher_trajectory = rospy.Publisher(topic_trajectory, MarkerArray, queue_size=100)
         drones_markers = MarkerArray()
+        print(self.__drones)
 
         # Here we call each drone
         for drone in self.__drones.values():
@@ -69,7 +71,8 @@ class VisualizationPublisher:
     def __update_trajectory(self):
         # For each drone we add his position in the moment
         for m in self.__trajectory_markers.markers:
-            m.points.append(self.new_point(self.__drones[m.id]))
+            if m.id in self.__drones.keys():
+                m.points.append(self.new_point(self.__drones[m.id]))
 
     @staticmethod
     def new_point(drone):
@@ -78,6 +81,14 @@ class VisualizationPublisher:
         return p
 
     def add_in_trajectory(self, drones, drone):
+
+        """alreadyexists = False
+        for m in self.__trajectory_markers.markers:
+            if m.id == drone.id:
+                alreadyexists = True
+                continue
+        if not alreadyexists:"""
+
         # Characteristics of each marker
         line_markers = Marker()
         line_markers.header.frame_id = str(1)
@@ -103,14 +114,13 @@ class VisualizationPublisher:
 
     def remove_drone(self, drones, drone_id=0):
         if drone_id == 0:
-            for i in range(len(self.__trajectory_markers)):
-                del self.__trajectory_markers[i]
+            for m in self.__trajectory_markers.markers:
+                m.action = m.DELETE
         else:
-            for i in range(len(self.__trajectory_markers)):
-                if self.__trajectory_markers[i].id == drone_id:
-                    del self.__trajectory_markers[i]
+            for m in self.__trajectory_markers.markers:
+                if m.id == drone_id:
+                    m.action = m.DELETE
         self.__drones = drones
-
 
 """class VisualizationPublisher:
 
