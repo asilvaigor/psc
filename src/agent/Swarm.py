@@ -41,13 +41,14 @@ class Swarm:
         """
         Creates a thread and runs the drone's pipeline. It detects obstacles, decides trajectory
         and updates visualizer. The thread will run until stop_thread is called.
+        Edit: not deciding trajectory here anymore, because of time. Doing it in the unpause button.
         """
         def pipeline():
             while not rospy.is_shutdown() and not self.__terminated:
                 cur_t = time.time()
                 with self.__lock:
-                    obstacle_collection = self.__perception.perceive()
-                    self.__decision_making.decide(obstacle_collection)
+                    # obstacle_collection = self.__perception.perceive()
+                    # self.__decision_making.decide(obstacle_collection)
                     self.__visualization_publisher.visualize()
                 t_remaining = max(0, 1.0 / RATE - (time.time() - cur_t))
                 time.sleep(t_remaining)
@@ -62,6 +63,13 @@ class Swarm:
         with self.__lock:
             self.__terminated = True
 
+    def decide_trajectory(self):
+        """
+        Detects obstacles and calculates a new trajectory.
+        """
+        obstacle_collection = self.__perception.perceive()
+        self.__decision_making.decide(obstacle_collection)
+
     def unpause(self, goal_pose):
         """
         Unpause all the drones, making them move autonomously again. Note that the drones will
@@ -70,6 +78,7 @@ class Swarm:
         """
         with self.__lock:
             self.__decision_making.unpause(goal_pose)
+            self.decide_trajectory()
 
     def pause(self):
         """

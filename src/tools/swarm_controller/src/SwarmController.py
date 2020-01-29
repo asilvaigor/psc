@@ -2,6 +2,7 @@ import math
 import os
 import signal
 import subprocess
+import threading
 from argparse import ArgumentParser
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -89,6 +90,7 @@ class SwarmController(Plugin):
             self.__widget.connected_push_button.setEnabled(True)
             self.__widget.connected_push_button.animateClick()
             self.__clear_drones()
+            self.__widget.pause_push_button.animateClick()
             # Restarting swarm to make sure
             self.__swarm.stop_thread()
             self.__swarm = Swarm()
@@ -113,7 +115,8 @@ class SwarmController(Plugin):
 
         def handle_run_button():
             if not self.__is_running:
-                self.__swarm.unpause(self.__goal_pose)
+                t = threading.Thread(target=self.__swarm.unpause(self.__goal_pose))
+                t.start()
                 self.__is_running = True
 
         self.__widget.pause_push_button.clicked.connect(handle_pause_button)

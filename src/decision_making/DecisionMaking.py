@@ -26,7 +26,7 @@ class DecisionMaking:
         """
 
         if not self.__is_paused:
-            pass
+            print("Deciding hehe")
 
     def unpause(self, goal_pose):
         """
@@ -42,8 +42,8 @@ class DecisionMaking:
         Pauses all the drones. Their motors will still be running and they will be stabilized in
         their current position. Note that the drones will initialize paused.
         """
-        for drone in self.__drones.items():
-            drone.pause()
+        for drone_id in self.__drones:
+            self.__drones[drone_id].pause()
         self.__is_paused = True
 
     def goto_drone(self, drone_id, pose):
