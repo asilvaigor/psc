@@ -15,6 +15,8 @@ from representations.Constants import COLORS
 from representations.Constants import COLORS_T
 from representations.Constants import MARKER_ARROW_SIZES
 from representations.Constants import MARKER_LINE_SIZE_X
+from representations.Constants import WHITE
+from representations.StablePose import StablePose
 from representations.Constants import N_DRONES
 
 class VisualizationPublisher:
@@ -26,8 +28,14 @@ class VisualizationPublisher:
         self.__drones = drones
         self.__trajectory_markers = MarkerArray()
         self.__drone_color_map = {}
+        for drone_id in drones:
+            self.add_in_trajectory(drones, drones[drone_id])
 
-    def visualize(self):
+    def visualize(self, goal_poses=None):
+        """
+        Updates all markers on rviz.
+        :param goal_poses: Dict of goal Pose for each drone.
+        """
         topic = 'visualization_drones'
         topic_trajectory = 'visualization_trajectory'
         # Review the queue_size
@@ -37,39 +45,66 @@ class VisualizationPublisher:
 
         # Here we call each drone
         for drone in self.__drones.values():
-            drones_markers.markers.append(self.__visualize_drone(drone))
+            drones_markers.markers.append(self.__get_pose_marker(
+                drone.pose, COLORS[self.__drone_color_map[drone.id]], drone.id, 1))
 
         # Here we update the trajectory
         self.__update_trajectory()
+
+        # Here we update the goal poses
+        if goal_poses is not None:
+            self.__update_goal_poses(goal_poses)
 
         # Publish the array of markers and the trajectory
         publisher.publish(drones_markers)
         publisher_trajectory.publish(self.__trajectory_markers)
 
-    def __visualize_drone(self, drone):
-        # Show each drone
-        drone_marker = Marker()
-        drone_marker.header.frame_id = str(1)
-        drone_marker.type = drone_marker.ARROW
-        drone_marker.action = drone_marker.ADD
-        drone_marker.id = drone.id
-
-        # Size of the marker
-        drone_marker.scale.x = MARKER_ARROW_SIZES[0]
-        drone_marker.scale.y = MARKER_ARROW_SIZES[1]
-        drone_marker.scale.z = MARKER_ARROW_SIZES[2]
-
-        # Color of the marker
-        drone_marker.color = COLORS[self.__drone_color_map[drone.id]]
-
-        # Position of the marker
-        drone_marker.pose = drone.pose
-        return drone_marker
-
     def __update_trajectory(self):
         # For each drone we add his position in the moment
         for m in self.__trajectory_markers.markers:
             m.points.append(self.new_point(self.__drones[m.id]))
+
+    def __update_goal_poses(self, goal_poses):
+        """
+        Refreshes goal poses in rviz.
+        :param goal_poses: Dict of StablePoses for each drone.
+        """
+        publisher = rospy.Publisher('visualization_goals', MarkerArray, queue_size=10)
+        markers = MarkerArray()
+        if 0 in goal_poses and len(self.__drones) % 2 == 0:
+            markers.markers.append(self.__get_pose_marker(
+                goal_poses[0].to_ros(), WHITE, 0, 0.7))
+        for drone_id in self.__drones:
+            if drone_id in goal_poses:
+                markers.markers.append(self.__get_pose_marker(
+                    goal_poses[drone_id].to_ros(),
+                    COLORS[self.__drone_color_map[drone_id]], drone_id, 0.5))
+
+        publisher.publish(markers)
+
+    def __get_pose_marker(self, pose, color, id, scale=1.0):
+        """
+        Creates an arrow marker with information from a pose.
+        :param pose: Pose object to be created.
+        :param color: Color of the marker.
+        :param id: Id of the marker.
+        :param scale: float to adjust marker size.
+        :return: Arrow Marker representing the pose.
+        """
+        marker = Marker()
+        marker.header.frame_id = str(1)
+        marker.type = Marker.ARROW
+        marker.action = Marker.ADD
+        marker.id = id
+        marker.color = color
+        marker.lifetime = rospy.Duration(1)
+
+        marker.scale.x = scale * MARKER_ARROW_SIZES[0]
+        marker.scale.y = scale * MARKER_ARROW_SIZES[1]
+        marker.scale.z = scale * MARKER_ARROW_SIZES[2]
+
+        marker.pose = pose
+        return marker
 
     @staticmethod
     def new_point(drone):

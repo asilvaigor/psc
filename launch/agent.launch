@@ -1,4 +1,6 @@
 <launch>
     <node name="agent_gui" pkg="rqt_gui" type="rqt_gui" output="screen"
           args = "--perspective-file $(find psc)/launch/perspectives/default.perspective"/>
+    <node name="rviz" pkg = "rviz" type="rviz" output="screen"
+          args = "-d $(find psc)/launch/perspectives/rviz_configuration.rviz"/>
 </launch>

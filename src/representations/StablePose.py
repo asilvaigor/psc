@@ -37,7 +37,11 @@ class StablePose:
         pose.position.x = self.x
         pose.position.y = self.y
         pose.position.z = self.z
-        pose.orientation = Quaternion(quaternion_from_euler(0, 0, self.yaw))
+        aux = quaternion_from_euler(0, 0, self.yaw)
+        pose.orientation.x = aux[0]
+        pose.orientation.y = aux[1]
+        pose.orientation.z = aux[2]
+        pose.orientation.w = aux[3]
         return pose
 
     @staticmethod
@@ -80,3 +84,11 @@ class StablePose:
         :return: Subtraction of poses.
         """
         return self + p.__neg__()
+
+    def __repr__(self):
+        """
+        Used for printing.
+        :return: String representing StablePose.
+        """
+        return "[" + str(self.x) + ", " + str(self.y) + ", " + \
+               str(self.z) + ", " + str(self.yaw) + "]"

@@ -31,6 +31,7 @@ class Swarm:
         self.__drones = {}
         for i in drone_ids:
             self.__drones[i] = Crazyflie(i)
+        self.__goal_poses = None
         self.__decision_making = DecisionMaking(self.__drones)
         self.__perception = Perception()
         self.__visualization_publisher = VisualizationPublisher(self.__drones)
@@ -49,12 +50,20 @@ class Swarm:
                 with self.__lock:
                     # obstacle_collection = self.__perception.perceive()
                     # self.__decision_making.decide(obstacle_collection)
-                    self.__visualization_publisher.visualize()
+                    self.__visualization_publisher.visualize(self.__goal_poses)
                 t_remaining = max(0, 1.0 / RATE - (time.time() - cur_t))
                 time.sleep(t_remaining)
 
         t = threading.Thread(target=pipeline)
         t.start()
+
+    @property
+    def drones(self):
+        """
+        Getter for drone dict.
+        :return: Dict of Crazyflie's for each drone_id.
+        """
+        return self.__drones
 
     def stop_thread(self):
         """
@@ -70,14 +79,20 @@ class Swarm:
         obstacle_collection = self.__perception.perceive()
         self.__decision_making.decide(obstacle_collection)
 
-    def unpause(self, goal_pose):
+    def set_goal_poses(self, goal_poses):
+        """
+        Sets goal poses.
+        :param goal_poses: Dict of goal StablePoses for each drone in the trajectory planner.
+        """
+        self.__goal_poses = goal_poses
+
+    def unpause(self):
         """
         Unpause all the drones, making them move autonomously again. Note that the drones will
         initialize paused.
-        @param goal_pose: Goal pose in the trajectory planner.
         """
         with self.__lock:
-            self.__decision_making.unpause(goal_pose)
+            self.__decision_making.unpause(self.__goal_poses)
             self.decide_trajectory()
 
     def pause(self):

@@ -1,6 +1,7 @@
 from geometry_msgs.msg import Pose
 
 from agent.Crazyflie import Crazyflie
+from decision_making.AStarPlanner import AStarPlanner
 
 
 class DecisionMaking:
@@ -15,7 +16,7 @@ class DecisionMaking:
         :param drones: Dict of used drones.
         """
         self.__drones = drones
-        self.__goal_pose = Pose()
+        self.__goal_poses = {}
         self.__is_paused = True
 
     def decide(self, obstacle_collection):
@@ -26,15 +27,15 @@ class DecisionMaking:
         """
 
         if not self.__is_paused:
-            print("Deciding hehe")
+            pass
 
-    def unpause(self, goal_pose):
+    def unpause(self, goal_poses):
         """
         Unpause all the drones, calculating the new trajectory and making them move autonomously
         again. Note that the drones will initialize paused.
-        @param goal_pose: Goal pose in the trajectory planner.
+        @param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
         """
-        self.__goal_pose = goal_pose
+        self.__goal_poses = goal_poses
         self.__is_paused = False
 
     def pause(self):

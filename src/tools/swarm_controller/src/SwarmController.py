@@ -11,6 +11,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
 from agent.Swarm import Swarm
+from representations.Constants import OBSTACLE_MARGIN
 from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z
 from representations.StablePose import StablePose
 
@@ -30,13 +31,15 @@ class SwarmController(Plugin):
         self.__configure_plugin(context)
 
         self.__swarm = Swarm()
-        self.__goal_pose = StablePose()
+        self.__goal_poses = {0: StablePose()}
+        self.__swarm.set_goal_poses(self.__goal_poses)
         self.__is_simulated = False
         self.__simulated_drones_count = 0
         self.__is_running = False
 
         self.__simulated_server_processes = []
         self.__gazebo_process = None
+        self.__kill_simulation()
 
         self.__configure_drones_combo_box()
         self.__configure_run_pause_buttons()
@@ -94,6 +97,8 @@ class SwarmController(Plugin):
             # Restarting swarm to make sure
             self.__swarm.stop_thread()
             self.__swarm = Swarm()
+            self.__goal_poses = {0: StablePose()}
+            self.__swarm.set_goal_poses(self.__goal_poses)
             self.__swarm.run_thread()
 
         self.__widget.drones_combo_box.currentIndexChanged.connect(handle_index_change)
@@ -115,7 +120,7 @@ class SwarmController(Plugin):
 
         def handle_run_button():
             if not self.__is_running:
-                t = threading.Thread(target=self.__swarm.unpause(self.__goal_pose))
+                t = threading.Thread(target=self.__swarm.unpause())
                 t.start()
                 self.__is_running = True
 
@@ -266,6 +271,7 @@ class SwarmController(Plugin):
                     list1.takeItem(row)
                     list2.addItem(str(idx))
                     list1.clearSelection()
+                    self.__configure_goal_poses()
 
                     return True
                 return False
@@ -274,6 +280,40 @@ class SwarmController(Plugin):
             swap(self.__widget.inuse_list, self.__widget.connected_list)
 
         self.__widget.swap_push_button.clicked.connect(handle_swap_button)
+
+    def __configure_goal_poses(self):
+        """
+        Sets goal poses for each drone, placing them in a line centered on the pose given and
+        separating drones with a fixed distance.
+        """
+
+        n_drones = len(self.__swarm.drones)
+        fixed_dist = 2 * OBSTACLE_MARGIN
+        center = self.__goal_poses[0]
+
+        # Finding points for poses
+        poses = []
+        is_odd = n_drones % 2 == 1
+        k = n_drones // 2
+        for i in range(k):
+            x = center.x - (i + 0.5 * (1 + is_odd)) * fixed_dist * math.sin(center.yaw)
+            y = center.y + (i + 0.5 * (1 + is_odd)) * fixed_dist * math.cos(center.yaw)
+            poses.append(StablePose(x, y, center.z, center.yaw))
+        if is_odd:
+            poses.append(center)
+        for i in range(k):
+            x = center.x + (i + 0.5 * (1 + is_odd)) * fixed_dist * math.sin(center.yaw)
+            y = center.y - (i + 0.5 * (1 + is_odd)) * fixed_dist * math.cos(center.yaw)
+            poses.append(StablePose(x, y, center.z, center.yaw))
+
+        # Associating each point with a drone
+        # TODO: Maximum matching problem, maybe pair drones closest to points to optimize it
+        i = 0
+        for drone_id in self.__swarm.drones:
+            self.__goal_poses[drone_id] = poses[i]
+            i += 1
+
+        self.__swarm.set_goal_poses(self.__goal_poses)
 
     def __configure_edits(self):
         """
@@ -284,17 +324,20 @@ class SwarmController(Plugin):
             """
             Changes variables and synchronizes spinboxes with label.
             """
-            self.__goal_pose.x = self.__widget.x_edit.value()
-            self.__goal_pose.y = self.__widget.y_edit.value()
-            self.__goal_pose.z = self.__widget.z_edit.value()
-            self.__goal_pose.yaw = math.radians(self.__widget.yaw_edit.value())
+            self.__goal_poses[0].x = self.__widget.x_edit.value()
+            self.__goal_poses[0].y = self.__widget.y_edit.value()
+            self.__goal_poses[0].z = self.__widget.z_edit.value()
+            self.__goal_poses[0].yaw = math.radians(self.__widget.yaw_edit.value())
 
             s = "Goal: ("
-            s += str(self.__goal_pose.x) + ", "
-            s += str(self.__goal_pose.y) + ", "
-            s += str(self.__goal_pose.z) + ", "
-            s += str(int(math.degrees(self.__goal_pose.yaw))) + ")"
+            s += str(self.__goal_poses[0].x) + ", "
+            s += str(self.__goal_poses[0].y) + ", "
+            s += str(self.__goal_poses[0].z) + ", "
+            # Putting center pose in index 0
+            s += str(int(math.degrees(self.__goal_poses[0].yaw))) + ")"
             self.__widget.coordinates_label.setText(s)
+
+            self.__configure_goal_poses()
 
         self.__widget.x_edit.setSingleStep(0.2)
         self.__widget.x_edit.setMinimum(MIN_X)
@@ -324,7 +367,7 @@ class SwarmController(Plugin):
             if not self.__is_running:
                 if len(self.__widget.inuse_list.selectedItems()) == 1:
                     idx = int(self.__widget.inuse_list.selectedItems()[0].text())
-                    self.__swarm.goto_drone(idx, self.__goal_pose)
+                    self.__swarm.goto_drone(idx, self.__goal_poses[0])
 
         self.__widget.goto_push_button.clicked.connect(handle_goto_button)
 
@@ -332,13 +375,14 @@ class SwarmController(Plugin):
         """
         Kills gazebo and cf2 processes if they exist.
         """
-        if self.__gazebo_process:
-            subprocess.call(['killall', '-9', 'gzclient'])
-            subprocess.call(['killall', '-9', 'gzserver'])
-            self.__gazebo_process = None
         while self.__simulated_server_processes:
             p = self.__simulated_server_processes.pop()
             p.kill()
+
+        subprocess.call(['killall', '-9', 'gzclient'])
+        subprocess.call(['killall', '-9', 'gzserver'])
+        self.__gazebo_process = None
+        subprocess.call(['killall', '-9', 'cf2'])
 
     def __clear_drones(self):
         while self.__widget.inuse_list.count() > 0:
