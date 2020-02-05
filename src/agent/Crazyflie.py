@@ -8,6 +8,7 @@ from geometry_msgs.msg import Pose
 from tf.transformations import quaternion_from_euler
 
 from agent.CrazyflieStateMachine import CrazyflieStateMachine
+from decision_making.MeshNode import MeshNode
 from representations.StablePose import StablePose
 from representations.Constants import MAX_VEL_X, MAX_VEL_Y, MAX_VEL_Z, MAX_VEL_YAW
 from CrazyflieServices import CrazyflieServices
@@ -59,6 +60,15 @@ class Crazyflie:
         :return: StablePose object
         """
         return StablePose.from_ros(self.__pose)
+
+    @property
+    def mesh_node(self):
+        """
+        Robot's position in the mesh that represents the world.
+        :return: TODO
+        """
+        # TODO
+        return MeshNode(0, 0, 0)
 
     def pause(self):
         """

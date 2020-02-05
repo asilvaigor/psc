@@ -18,6 +18,7 @@ class DecisionMaking:
         self.__drones = drones
         self.__goal_poses = {}
         self.__is_paused = True
+        self.__planner = AStarPlanner()
 
     def decide(self, obstacle_collection):
         """
@@ -27,6 +28,8 @@ class DecisionMaking:
         """
 
         if not self.__is_paused:
+            # TODO: fill in drones mesh_node, calculate goal_nodes too
+            # paths = self.__planner.plan(drones, goal_nodes)
             pass
 
     def unpause(self, goal_poses):
