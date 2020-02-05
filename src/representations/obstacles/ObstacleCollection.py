@@ -1,3 +1,6 @@
+from representations.Constants import OBSTACLE_MARGIN
+
+
 class ObstacleCollection:
     """
     Collection of obstacle objects in the world.
@@ -27,7 +30,7 @@ class ObstacleCollection:
         """
         self.__obstacles.append(obstacle)
 
-    def contains(self, point, margin):
+    def contains(self, point, margin=OBSTACLE_MARGIN):
         """
         Checks if any of the obstacles contains a point, with a given security margin.
         :param point: Point to be checked.

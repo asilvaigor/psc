@@ -50,17 +50,19 @@ class AStarPlanner:
                         visited[n] = True
                         came_from[n] = cur[2]
 
-            paths[drone_id] = self.__reconstruct_path(came_from, goal_nodes[drone_id])
+            paths[drone_id] = self.__reconstruct_path(came_from, drones[drone_id].mesh_node,
+                                                      goal_nodes[drone_id])
 
         return paths
 
     @staticmethod
-    def __reconstruct_path(came_from, goal_node):
+    def __reconstruct_path(came_from, start_node, goal_node):
         """
         Reconstructs a list of nodes representing a path to follow from a dict of nodes
         representing where the path came from.
         :param came_from: Dict of MeshNode containing previous node in path.
-        :param goal_node: MeshNode that was the beginning.
+        :param start_node: MeshNode that is the beginning.
+        :param goal_node: MeshNode that is the end.
         :return: Array of nodes containing a path to follow.
         """
         path = [goal_node]
@@ -68,4 +70,7 @@ class AStarPlanner:
         while cur in came_from:
             cur = came_from[cur]
             path.append(cur)
+
+        if path[-1] != start_node:
+            return []
         return path[::-1]

@@ -6,7 +6,8 @@ from agent.Crazyflie import Crazyflie
 from decision_making.DecisionMaking import DecisionMaking
 from perception.Perception import Perception
 from representations.Constants import RATE
-from tools.telemetry.VisualizationPublisher import VisualizationPublisher
+from representations.obstacles.ObstacleCollection import ObstacleCollection
+from tools.visualization.VisualizationPublisher import VisualizationPublisher
 
 
 class Swarm:
@@ -32,6 +33,7 @@ class Swarm:
         for i in drone_ids:
             self.__drones[i] = Crazyflie(i)
         self.__goal_poses = None
+        self.__obstacle_collection = ObstacleCollection()
         self.__decision_making = DecisionMaking(self.__drones)
         self.__perception = Perception()
         self.__visualization_publisher = VisualizationPublisher(self.__drones)
@@ -45,12 +47,20 @@ class Swarm:
         Edit: not deciding trajectory here anymore, because of time. Doing it in the unpause button.
         """
         def pipeline():
+            # Publishing first things to rviz
+            time.sleep(0.5)  # FIXME: for some reason the obstacles/mesh weren't being published
+            # here. Perhaps something to do with ros initialization?
+            self.__obstacle_collection = self.__perception.perceive()
+            self.__decision_making.decide(self.__obstacle_collection, self.__goal_poses)
+            self.__visualization_publisher.visualize_world(self.__decision_making.mesh,
+                                                           self.__obstacle_collection)
+
             while not rospy.is_shutdown() and not self.__terminated:
                 cur_t = time.time()
                 with self.__lock:
-                    obstacle_collection = self.__perception.perceive()
-                    self.__decision_making.decide(obstacle_collection)
-                    self.__visualization_publisher.visualize(obstacle_collection, self.__goal_poses)
+                    # obstacle_collection = self.__perception.perceive()
+                    # self.__decision_making.decide(obstacle_collection)
+                    self.__visualization_publisher.visualize(self.__goal_poses)
                 t_remaining = max(0, 1.0 / RATE - (time.time() - cur_t))
                 time.sleep(t_remaining)
 
@@ -72,13 +82,6 @@ class Swarm:
         with self.__lock:
             self.__terminated = True
 
-    def decide_trajectory(self):
-        """
-        Detects obstacles and calculates a new trajectory.
-        """
-        obstacle_collection = self.__perception.perceive()
-        self.__decision_making.decide(obstacle_collection)
-
     def set_goal_poses(self, goal_poses):
         """
         Sets goal poses.
@@ -92,8 +95,11 @@ class Swarm:
         initialize paused.
         """
         with self.__lock:
-            self.__decision_making.unpause(self.__goal_poses)
-            self.decide_trajectory()
+            self.__obstacle_collection = self.__perception.perceive()
+            self.__decision_making.unpause(self.__obstacle_collection, self.__goal_poses)
+            self.__visualization_publisher.visualize_world(self.__decision_making.mesh,
+                                                           self.__obstacle_collection)
+            self.__visualization_publisher.visualize_paths()
 
     def pause(self):
         """

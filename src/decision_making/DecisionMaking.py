@@ -2,6 +2,7 @@ from geometry_msgs.msg import Pose
 
 from agent.Crazyflie import Crazyflie
 from decision_making.AStarPlanner import AStarPlanner
+from decision_making.UniformMesh import UniformMesh
 
 
 class DecisionMaking:
@@ -16,30 +17,40 @@ class DecisionMaking:
         :param drones: Dict of used drones.
         """
         self.__drones = drones
-        self.__goal_poses = {}
         self.__is_paused = True
         self.__planner = AStarPlanner()
+        self.__mesh = UniformMesh(0.2)
+        self.__paths = {}
 
-    def decide(self, obstacle_collection):
+    @property
+    def mesh(self):
+        """
+        Getter for mesh, which represents the discrete space.
+        :return: Mesh object.
+        """
+        return self.__mesh
+
+    def decide(self, obstacle_collection, goal_poses):
         """
         Main loop function for decision making. It calculates the best trajectories for each drone
         to reach the goal avoiding obstacles, and sets them on the drones.
         :param obstacle_collection: Obstacles in the world.
+        :param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
         """
+        self.__mesh.discretize(self.__drones, obstacle_collection, goal_poses)
+        self.__paths = self.__planner.plan(self.__drones, self.__mesh.goal_nodes)
 
-        if not self.__is_paused:
-            # TODO: fill in drones mesh_node, calculate goal_nodes too
-            # paths = self.__planner.plan(drones, goal_nodes)
-            pass
-
-    def unpause(self, goal_poses):
+    def unpause(self, obstacle_collection, goal_poses):
         """
         Unpause all the drones, calculating the new trajectory and making them move autonomously
         again. Note that the drones will initialize paused.
-        @param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
+        :param obstacle_collection: Obstacles in the world.
+        :param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
         """
-        self.__goal_poses = goal_poses
         self.__is_paused = False
+        self.decide(obstacle_collection, goal_poses)
+        for drone_id in self.__drones:
+            self.__drones[drone_id].follow_path(self.__paths[drone_id])
 
     def pause(self):
         """

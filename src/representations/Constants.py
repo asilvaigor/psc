@@ -6,6 +6,9 @@ RATE = 30  # Hz
 # Number of drones
 N_DRONES = 12
 
+# Double precision
+PRECISION = 1e-3
+
 # Room limits for the drones to be in.
 # TODO: put good values
 MIN_X = -1.1  # m

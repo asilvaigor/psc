@@ -79,6 +79,22 @@ Visualization Manager:
       Marker Topic: /visualization_obstacles
       Name: MarkerArray
       Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_mesh
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_fpath
+      Name: Marker
+      Namespaces:
         {}
       Queue Size: 100
       Value: true

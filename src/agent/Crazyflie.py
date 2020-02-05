@@ -102,6 +102,7 @@ class Crazyflie:
             # Leaving empty the drone falls.
 
     def follow_path(self, path):
+        self.__path = path
         pass
 
     def follow_trajectory(self, trajectory):
@@ -141,6 +142,8 @@ class Crazyflie:
         elif isinstance(arg, MeshNode):
             return math.hypot(math.hypot(p.x - arg.x, p.y - arg.y), p.z - arg.z)
         elif isinstance(arg, Pose):
+            return self.dist(arg.position)
+        elif isinstance(arg, StablePose):
             return self.dist(arg.position)
         elif isinstance(arg, Crazyflie):
             return self.dist(arg.pose)

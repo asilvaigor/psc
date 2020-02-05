@@ -6,7 +6,7 @@ import math
 
 from representations.Constants import RATE
 from agent.Crazyflie import Crazyflie
-from tools.telemetry.VisualizationPublisher import VisualizationPublisher
+from tools.visualization.VisualizationPublisher import VisualizationPublisher
 
 
 # Testing the class VisualizationPublisher.py
