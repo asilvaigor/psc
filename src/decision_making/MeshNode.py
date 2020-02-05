@@ -1,3 +1,4 @@
+from geometry_msgs.msg import Pose, Point
 import math
 
 
@@ -32,12 +33,21 @@ class MeshNode:
         self.edges.append(node)
         node.edges.append(self)
 
-    def dist(self, node):
+    def dist(self, arg):
         """
-        Returns distance between two nodes.
-        @param node:
+        Returns the distance to a certain object.
+        :param arg: Object to calculate distance. Can be Point, Pose or MeshNode.
+        :return: float, distance to the object.
         """
-        return math.hypot(math.hypot(self.x - node.x, self.y - node.y), self.z - node.z)
+        if isinstance(arg, MeshNode):
+            return math.hypot(math.hypot(self.x - arg.x, self.y - arg.y), self.z - arg.z)
+        elif isinstance(arg, Point):
+            return math.hypot(math.hypot(self.x - arg.x, self.y - arg.y), self.z - arg.z)
+        elif isinstance(arg, Pose):
+            return self.dist(arg.position)
+        else:
+            raise ValueError("MeshNode can't calculate distances to object of type " +
+                             type(arg).__name__)
 
     def __eq__(self, node):
         """

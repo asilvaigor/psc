@@ -4,7 +4,7 @@ import math
 import rospy
 import time
 from crazyflie_driver.msg import GenericLogData
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Point
 from tf.transformations import quaternion_from_euler
 
 from agent.CrazyflieStateMachine import CrazyflieStateMachine
@@ -30,6 +30,8 @@ class Crazyflie:
         self.__state_machine = CrazyflieStateMachine()
         self.__services = CrazyflieServices(drone_id, high_level)
         self.__pose = Pose()
+        self.__mesh_node = None
+        self.__path = []
 
         prefix = "/cf" + str(drone_id)
         self.__prefix = prefix
@@ -67,8 +69,29 @@ class Crazyflie:
         Robot's position in the mesh that represents the world.
         :return: TODO
         """
-        # TODO
-        return MeshNode(0, 0, 0)
+        return self.__mesh_node
+
+    def set_mesh_node(self, mesh_node):
+        """
+        Sets the robot's mesh_node.
+        :param mesh_node:
+        """
+        self.__mesh_node = mesh_node
+
+    @property
+    def path(self):
+        """
+        Robot's path to follow.
+        :return: List of MeshNodes representing the robot's path.
+        """
+        return self.__path
+
+    def set_path(self, path):
+        """
+        Sets the path for the robot to follow.
+        :param path: List of MeshNodes representing the robot's path.
+        """
+        self.__path = path
 
     def pause(self):
         """
@@ -77,6 +100,9 @@ class Crazyflie:
         if not self.is_inactive():
             self.goto(self.stable_pose, duration=1)  # Tested a bit and it seems to work with 1.
             # Leaving empty the drone falls.
+
+    def follow_path(self, path):
+        pass
 
     def follow_trajectory(self, trajectory):
         # self.__services.upload_trajectory(trajectory_id, piece_offset, trajectory)
@@ -102,6 +128,25 @@ class Crazyflie:
         """
         while not self.is_inactive():
             time.sleep(1.0/freq)
+
+    def dist(self, arg):
+        """
+        Returns the distance to a certain object.
+        :param arg: Object to calculate distance. Can be Point, Pose, MeshNode or Crazyflie.
+        :return: float, distance to the object.
+        """
+        p = self.pose.position
+        if isinstance(arg, Point):
+            return math.hypot(math.hypot(p.x - arg.x, p.y - arg.y), p.z - arg.z)
+        elif isinstance(arg, MeshNode):
+            return math.hypot(math.hypot(p.x - arg.x, p.y - arg.y), p.z - arg.z)
+        elif isinstance(arg, Pose):
+            return self.dist(arg.position)
+        elif isinstance(arg, Crazyflie):
+            return self.dist(arg.pose)
+        else:
+            raise ValueError("Crazyflie can't calculate distances to object of type " +
+                             type(arg).__name__)
 
     def goto(self, *args, **kwargs):
         """
