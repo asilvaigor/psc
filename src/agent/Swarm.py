@@ -48,9 +48,9 @@ class Swarm:
             while not rospy.is_shutdown() and not self.__terminated:
                 cur_t = time.time()
                 with self.__lock:
-                    # obstacle_collection = self.__perception.perceive()
-                    # self.__decision_making.decide(obstacle_collection)
-                    self.__visualization_publisher.visualize(self.__goal_poses)
+                    obstacle_collection = self.__perception.perceive()
+                    self.__decision_making.decide(obstacle_collection)
+                    self.__visualization_publisher.visualize(obstacle_collection, self.__goal_poses)
                 t_remaining = max(0, 1.0 / RATE - (time.time() - cur_t))
                 time.sleep(t_remaining)
 

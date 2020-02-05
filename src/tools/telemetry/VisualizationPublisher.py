@@ -1,23 +1,18 @@
+import math
 import rospy
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from geometry_msgs.msg import Point
-from representations.Constants import COLORS
-from representations.Constants import COLORS_T
-from representations.Constants import MARKER_ARROW_SIZES
-from representations.Constants import MARKER_LINE_SIZE_X
+from tf.transformations import quaternion_from_euler
 
-import rospy
-from visualization_msgs.msg import Marker
-from visualization_msgs.msg import MarkerArray
-from geometry_msgs.msg import Point
 from representations.Constants import COLORS
 from representations.Constants import COLORS_T
 from representations.Constants import MARKER_ARROW_SIZES
 from representations.Constants import MARKER_LINE_SIZE_X
 from representations.Constants import WHITE
-from representations.StablePose import StablePose
-from representations.Constants import N_DRONES
+from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z
+from representations.obstacles.Cylinder import Cylinder
+
 
 class VisualizationPublisher:
 
@@ -31,9 +26,10 @@ class VisualizationPublisher:
         for drone_id in drones:
             self.add_in_trajectory(drones, drones[drone_id])
 
-    def visualize(self, goal_poses=None):
+    def visualize(self, obstacle_collection=None, goal_poses=None):
         """
         Updates all markers on rviz.
+        :param obstacle_collection: ObstacleCollection with obstacles in the scene
         :param goal_poses: Dict of goal Pose for each drone.
         """
         topic = 'visualization_drones'
@@ -54,6 +50,10 @@ class VisualizationPublisher:
         # Here we update the goal poses
         if goal_poses is not None:
             self.__update_goal_poses(goal_poses)
+
+        # Here we update the obstacles
+        if obstacle_collection is not None:
+            self.__update_obstacles(obstacle_collection)
 
         # Publish the array of markers and the trajectory
         publisher.publish(drones_markers)
@@ -82,7 +82,52 @@ class VisualizationPublisher:
 
         publisher.publish(markers)
 
-    def __get_pose_marker(self, pose, color, id, scale=1.0):
+    @staticmethod
+    def __update_obstacles(obstacle_collection):
+        """
+        Refreshes obstacles in rviz. Currently supports only cylinders.
+        :param obstacle_collection: ObstacleCollection with obstacles in the scene.
+        """
+        publisher = rospy.Publisher('visualization_obstacles', MarkerArray, queue_size=10)
+        markers = MarkerArray()
+        for obstacle in obstacle_collection.obstacles:
+            if isinstance(obstacle, Cylinder):
+                m = Marker()
+                m.header.frame_id = str(1)
+                m.type = Marker.CYLINDER
+                m.action = Marker.ADD
+                m.id = obstacle_collection.obstacles.index(obstacle)
+                m.color = WHITE
+                m.lifetime = rospy.Duration(1)
+
+                m.scale.x = 2 * obstacle.radius
+                m.scale.y = 2 * obstacle.radius
+
+                m.pose.position = obstacle.position
+                orientation = []
+                if obstacle.axis == 'x':
+                    orientation = quaternion_from_euler(0, math.pi / 2, 0)
+                    m.pose.position.x = 0
+                    m.scale.z = MAX_X - MIN_X
+                elif obstacle.axis == 'y':
+                    orientation = quaternion_from_euler(math.pi / 2, 0, 0)
+                    m.pose.position.y = 0
+                    m.scale.z = MAX_Y - MIN_Y
+                elif obstacle.axis == 'z':
+                    orientation = quaternion_from_euler(0, 0, 0)
+                    m.pose.position.z = (MAX_Z - MIN_Z) / 2
+                    m.scale.z = MAX_Z - MIN_Z
+                m.pose.orientation.x = orientation[0]
+                m.pose.orientation.y = orientation[1]
+                m.pose.orientation.z = orientation[2]
+                m.pose.orientation.w = orientation[3]
+
+                markers.markers.append(m)
+
+        publisher.publish(markers)
+
+    @staticmethod
+    def __get_pose_marker(pose, color, id, scale=1.0):
         """
         Creates an arrow marker with information from a pose.
         :param pose: Pose object to be created.
