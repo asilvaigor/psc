@@ -18,17 +18,6 @@ MAX_Y = 1.5  # m
 MIN_Z = 0  # m
 MAX_Z = 1.5  # m
 
-# Polynomial size
-# TODO put good values
-POLYNOMIAL_SIZE = 8   # quantity of mesh nodes per polynomial
-
-# Intersection between two subsequent polynomials of a trajectory
-# TODO put good values
-POLYNOMIAL_INT = 2   # mesh nodes
-
-#
-TIME_ERROR = 0.5
-
 # Maximum velocities
 # TODO: put good values
 MAX_VEL_X = 0.375  # m/s

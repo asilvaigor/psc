@@ -10,6 +10,8 @@ class CrazyflieServices:
         prefix = "/cf" + str(drone_id)
         self.__prefix = prefix
         self.__id = drone_id
+        self.__trajectory_id = -1
+        self.__piece_offset = 0
 
         if use_tf:
             self.__tf = TransformListener()
@@ -51,7 +53,7 @@ class CrazyflieServices:
     def goto(self, goal, yaw, duration, relative=False, group_mask=0):
         self.__goToService(group_mask, relative, goal, yaw, rospy.Duration.from_sec(duration))
 
-    def upload_trajectory(self, trajectory_id, piece_offset, trajectory):
+    def upload_trajectory(self, trajectory):
         pieces = []
         for poly in trajectory.polynomials:
             piece = TrajectoryPolynomialPiece()
@@ -61,11 +63,16 @@ class CrazyflieServices:
             piece.poly_z = poly.pz.p
             piece.poly_yaw = poly.pyaw.p
             pieces.append(piece)
-        self.__uploadTrajectoryService(trajectory_id, piece_offset, pieces)
+        self.__trajectory_id = self.__trajectory_id + 1
+        self.__uploadTrajectoryService(self.__trajectory_id, self.__piece_offset, pieces)
+        self.__piece_offset += len(trajectory.polynomials)
 
-    def start_trajectory(self, trajectory_id, timescale=1.0, reverse=False, relative=True,
+    def start_trajectory(self, timescale=1.0, reverse=False, relative=False,
                          group_mask=0):
-        self.__startTrajectoryService(group_mask, trajectory_id, timescale, reverse, relative)
+        self.__startTrajectoryService(group_mask, self.__trajectory_id, timescale, reverse,
+                                      relative)
+        self.__trajectory_id = -1
+        self.__piece_offset = 0
 
     def position(self):
         if not self.__tf:

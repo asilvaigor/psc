@@ -9,6 +9,7 @@ from tf.transformations import quaternion_from_euler
 
 from agent.CrazyflieStateMachine import CrazyflieStateMachine
 from decision_making.MeshNode import MeshNode
+from decision_making.trajectory.Trajectory import Trajectory
 from representations.StablePose import StablePose
 from representations.Constants import MAX_VEL_X, MAX_VEL_Y, MAX_VEL_Z, MAX_VEL_YAW
 from CrazyflieServices import CrazyflieServices
@@ -102,13 +103,22 @@ class Crazyflie:
             # Leaving empty the drone falls.
 
     def follow_path(self, path):
+        """
+        Follows a given path in a constant speed.
+        :param path: Array of MeshNode, describing a path in the discretized space for the robot to
+        follow.
+        """
         self.__path = path
-        pass
+        trajectory = Trajectory(path)
+        self.follow_trajectory(trajectory)
 
     def follow_trajectory(self, trajectory):
-        # self.__services.upload_trajectory(trajectory_id, piece_offset, trajectory)
-        # self.__services.start_trajectory(trajectory_id, timescale, reverse, relative, group_mask)
-        pass
+        """
+        Follows a given trajectory.
+        :param trajectory: Trajectory object to be followed.
+        """
+        self.__services.upload_trajectory(trajectory)
+        self.__services.start_trajectory()
 
     def is_inactive(self):
         """

@@ -90,6 +90,7 @@ rqt-top==0.4.8
 rqt-topic==0.4.10
 rqt-web==0.4.8
 rviz==1.12.17
+scipy==0.18
 sensor-msgs==1.12.7
 six==1.12.0
 smach==2.0.1
