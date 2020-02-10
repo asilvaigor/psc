@@ -1,5 +1,7 @@
 import math
 import rospy
+import time
+import threading
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from geometry_msgs.msg import Point
@@ -11,11 +13,11 @@ from representations.Constants import MARKER_ARROW_SIZES
 from representations.Constants import MARKER_LINE_SIZE_X
 from representations.Constants import WHITE, RED
 from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z
+from representations.Constants import VISUALIZATION_RATE
 from representations.obstacles.Cylinder import Cylinder
 
 
 class VisualizationPublisher:
-
     def __init__(self, drones):
         """
         Basic constructor
@@ -35,10 +37,12 @@ class VisualizationPublisher:
                                                     queue_size=10)
         self.__mesh_publisher = rospy.Publisher('visualization_mesh', Marker, queue_size=10)
 
-    def visualize(self, goal_poses=None):
+        self.__terminated = False
+        self.__run_thread()
+
+    def update_drones(self):
         """
-        Updates all markers on rviz.
-        :param goal_poses: Dict of goal Pose for each drone.
+        Updates drone markers on rviz.
         """
         drones_markers = MarkerArray()
 
@@ -50,15 +54,31 @@ class VisualizationPublisher:
         # Here we update the past path
         self.__update_past_path()
 
-        # Here we update the goal poses
-        if goal_poses is not None:
-            self.__update_goal_poses(goal_poses)
-
         # Publish the array of markers and the trajectory
         self.__drone_publisher.publish(drones_markers)
         self.__past_path_publisher.publish(self.__past_path_markers)
 
-    def visualize_world(self, mesh=None, obstacle_collection=None):
+    def update_goal_poses(self, goal_poses):
+        """
+        Refreshes goal poses in rviz.
+        :param goal_poses: Dict of StablePoses for each drone.
+        """
+        if goal_poses is None:
+            return
+
+        markers = MarkerArray()
+        if 0 in goal_poses and len(self.__drones) % 2 == 0:
+            markers.markers.append(self.__get_pose_marker(
+                goal_poses[0].to_ros(), WHITE, 0, 0.7, -1))
+        for drone_id in self.__drones:
+            if drone_id in goal_poses:
+                markers.markers.append(self.__get_pose_marker(
+                    goal_poses[drone_id].to_ros(),
+                    COLORS[self.__drone_color_map[drone_id]], drone_id, 0.5, -1))
+
+        self.__goal_publisher.publish(markers)
+
+    def update_world(self, mesh=None, obstacle_collection=None):
         """
         Updates mesh and obstacles markers in rviz.
         :param mesh: Mesh object which describes the space.
@@ -72,32 +92,32 @@ class VisualizationPublisher:
         if mesh is not None:
             self.__update_mesh(mesh)
 
-    def visualize_paths(self):
+    def update_paths(self):
         for drone_id in self.__drones:
             if len(self.__drones[drone_id].path) > 0:
                 self.__update_future_path(drone_id, self.__drones[drone_id].path)
+
+    def terminate(self):
+        """
+        Stops running the thread.
+        """
+        self.__terminated = True
+
+    def __run_thread(self):
+        def pipeline():
+            while not rospy.is_shutdown() and not self.__terminated:
+                cur_t = time.time()
+                self.update_drones()
+                t_remaining = max(0, 1.0 / VISUALIZATION_RATE - (time.time() - cur_t))
+                time.sleep(t_remaining)
+
+        t = threading.Thread(target=pipeline)
+        t.start()
 
     def __update_past_path(self):
         # For each drone we add his position in the moment
         for m in self.__past_path_markers.markers:
             m.points.append(self.new_point(self.__drones[m.id]))
-
-    def __update_goal_poses(self, goal_poses):
-        """
-        Refreshes goal poses in rviz.
-        :param goal_poses: Dict of StablePoses for each drone.
-        """
-        markers = MarkerArray()
-        if 0 in goal_poses and len(self.__drones) % 2 == 0:
-            markers.markers.append(self.__get_pose_marker(
-                goal_poses[0].to_ros(), WHITE, 0, 0.7))
-        for drone_id in self.__drones:
-            if drone_id in goal_poses:
-                markers.markers.append(self.__get_pose_marker(
-                    goal_poses[drone_id].to_ros(),
-                    COLORS[self.__drone_color_map[drone_id]], drone_id, 0.5))
-
-        self.__goal_publisher.publish(markers)
 
     def __update_obstacles(self, obstacle_collection):
         """
@@ -190,13 +210,14 @@ class VisualizationPublisher:
         self.__future_path_publisher.publish(m)
 
     @staticmethod
-    def __get_pose_marker(pose, color, id, scale=1.0):
+    def __get_pose_marker(pose, color, id, scale=1.0, lifetime=1):
         """
         Creates an arrow marker with information from a pose.
         :param pose: Pose object to be created.
         :param color: Color of the marker.
         :param id: Id of the marker.
         :param scale: float to adjust marker size.
+        :param lifetime: Duration the marker will stay visible.
         :return: Arrow Marker representing the pose.
         """
         marker = Marker()
@@ -205,7 +226,7 @@ class VisualizationPublisher:
         marker.action = Marker.ADD
         marker.id = id
         marker.color = color
-        marker.lifetime = rospy.Duration(1)
+        marker.lifetime = rospy.Duration(lifetime)
 
         marker.scale.x = scale * MARKER_ARROW_SIZES[0]
         marker.scale.y = scale * MARKER_ARROW_SIZES[1]

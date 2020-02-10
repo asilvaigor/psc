@@ -5,19 +5,19 @@ class AStarPlanner:
     def __init__(self):
         pass
 
-    def plan(self, drones, goal_nodes):
+    def plan(self, drone_nodes, goal_nodes):
         """
         Calculates trajectory using A* algorithm. Worst-case O(n + e log(e))
-        :param drones: Dict of drones.
+        :param drone_nodes: Dict of MeshNodes for each drone.
         :param goal_nodes: Dict of goal MeshNodes for each drone_id.
         :return: Dict of paths for each drone_id. A path here is a list of MeshNodes in the world
         mesh.
         """
         paths = {}
 
-        for drone_id in drones:
+        for drone_id in drone_nodes:
             # Dealing trivial case
-            if goal_nodes[drone_id] == drones[drone_id].mesh_node:
+            if goal_nodes[drone_id] == drone_nodes[drone_id]:
                 paths[drone_id] = []
                 continue
 
@@ -28,10 +28,10 @@ class AStarPlanner:
 
             # First node
             cost = 0  # Cost in graph
-            dist = goal_nodes[drone_id].dist(drones[drone_id].mesh_node)  # Heuristic compensation
+            dist = goal_nodes[drone_id].dist(drone_nodes[drone_id])  # Heuristic compensation
             heuristic = cost + dist
-            pq.append((heuristic, cost, drones[drone_id].mesh_node))
-            visited[drones[drone_id].mesh_node] = True
+            pq.append((heuristic, cost, drone_nodes[drone_id]))
+            visited[drone_nodes[drone_id]] = True
 
             # Running algorithm
             while len(pq) > 0:
@@ -50,7 +50,7 @@ class AStarPlanner:
                         visited[n] = True
                         came_from[n] = cur[2]
 
-            paths[drone_id] = self.__reconstruct_path(came_from, drones[drone_id].mesh_node,
+            paths[drone_id] = self.__reconstruct_path(came_from, drone_nodes[drone_id],
                                                       goal_nodes[drone_id])
 
         return paths

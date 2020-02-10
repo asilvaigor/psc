@@ -1,7 +1,7 @@
 from geometry_msgs.msg import Pose, Point
 import math
 
-from representations.Constants import PRECISION
+from representations.Constants import GROUND_PRECISION, PRECISION
 from representations.StablePose import StablePose
 
 
@@ -59,6 +59,13 @@ class MeshNode:
         else:
             raise ValueError("MeshNode can't calculate distances to object of type " +
                              type(arg).__name__)
+
+    def is_on_ground(self):
+        """
+        Checks if node is on the ground.
+        :return: True or False
+        """
+        return self.z < GROUND_PRECISION
 
     def __eq__(self, node):
         """

@@ -65,21 +65,6 @@ class Crazyflie:
         return StablePose.from_ros(self.__pose)
 
     @property
-    def mesh_node(self):
-        """
-        Robot's position in the mesh that represents the world.
-        :return: TODO
-        """
-        return self.__mesh_node
-
-    def set_mesh_node(self, mesh_node):
-        """
-        Sets the robot's mesh_node.
-        :param mesh_node:
-        """
-        self.__mesh_node = mesh_node
-
-    @property
     def path(self):
         """
         Robot's path to follow.

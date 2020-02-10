@@ -16,24 +16,21 @@ class UniformMesh:
         :param delta: Minimum separation between two nodes.
         """
         self.__nodes = []
-        self.__goal_nodes = {}
         self.__delta = delta
 
     @property
     def nodes(self):
         return self.__nodes
 
-    @property
-    def goal_nodes(self):
-        return self.__goal_nodes
-
-    def discretize(self, drones, obstacle_collection, goal_poses):
+    def discretize(self, obstacle_collection, drone_poses, goal_poses):
         """
         Creates a discrete version of the world. It sets the mesh_node parameter in each drone, and
         also its two variables, __nodes and __goal_nodes.
-        :param drones: Dict of Crazyflie representing the drones.
         :param obstacle_collection: ObstacleCollection object with obstacles.
+        :param drone_poses: Dict of StablePose objects, for the poses for each drone_id.
         :param goal_poses: Dict of Pose objects for each drone's final pose.
+        :return drone_nodes: Dict of MeshNode objects for the node for each drone.
+        :return goal_nodes: Dict of MeshNode objects for nodes for each goal.
         """
         nodes_dict = {}
         d = self.__delta
@@ -48,7 +45,8 @@ class UniformMesh:
 
         # Adds edges between nodes.
         def add_edge(k1, k2):
-            if k2 in nodes_dict:
+            if k2 in nodes_dict and not \
+                    (nodes_dict[k1].is_on_ground() and nodes_dict[k2].is_on_ground()):
                 nodes_dict[k1].add_edge(nodes_dict[k2])
 
         for k in nodes_dict:
@@ -63,21 +61,29 @@ class UniformMesh:
             k1 = (round(x, 3), round(y, 3), round(z, 3))
             nodes_dict[k1] = n
             for k2 in nodes_dict:
-                if k1 != k2 and nodes_dict[k1].dist(nodes_dict[k2]) < self.__delta + PRECISION:
+                if k1 != k2 and not \
+                        (nodes_dict[k1].is_on_ground() and nodes_dict[k2].is_on_ground()) and \
+                        nodes_dict[k1].dist(nodes_dict[k2]) < 1.7 * self.__delta + PRECISION:
                     add_edge(k1, k2)
 
         # Adding drone nodes
-        for drone_id in drones:
-            p = drones[drone_id].pose.position
-            drones[drone_id].set_mesh_node(MeshNode(p.x, p.y, p.z))
-            add_node(p.x, p.y, p.z, drones[drone_id].mesh_node)
+        drone_nodes = {}
+        if drone_poses is not None:
+            for drone_id in drone_poses:
+                p = drone_poses[drone_id].position
+                drone_nodes[drone_id] = MeshNode(p.x, p.y, p.z)
+                add_node(p.x, p.y, p.z, drone_nodes[drone_id])
 
         # Adding goal nodes
-        for drone_id in goal_poses:
-            p = goal_poses[drone_id]
-            self.__goal_nodes[drone_id] = MeshNode(p.x, p.y, p.z)
-            add_node(p.x, p.y, p.z, self.__goal_nodes[drone_id])
+        goal_nodes = {}
+        if goal_poses is not None:
+            for drone_id in goal_poses:
+                p = goal_poses[drone_id]
+                goal_nodes[drone_id] = MeshNode(p.x, p.y, p.z)
+                add_node(p.x, p.y, p.z, goal_nodes[drone_id])
 
         # Converts dict to list
         for node in nodes_dict.values():
             self.__nodes.append(node)
+
+        return drone_nodes, goal_nodes

@@ -1,12 +1,11 @@
-import rospy
 import time
 import threading
 
 from agent.Crazyflie import Crazyflie
 from decision_making.DecisionMaking import DecisionMaking
 from perception.Perception import Perception
-from representations.Constants import RATE
 from representations.obstacles.ObstacleCollection import ObstacleCollection
+from representations.StablePose import StablePose
 from tools.visualization.VisualizationPublisher import VisualizationPublisher
 
 
@@ -38,34 +37,12 @@ class Swarm:
         self.__perception = Perception()
         self.__visualization_publisher = VisualizationPublisher(self.__drones)
         self.__lock = threading.Lock()
-        self.__terminated = False
 
-    def run_thread(self):
-        """
-        Creates a thread and runs the drone's pipeline. It detects obstacles, decides trajectory
-        and updates visualizer. The thread will run until stop_thread is called.
-        Edit: not deciding trajectory here anymore, because of time. Doing it in the unpause button.
-        """
-        def pipeline():
-            # Publishing first things to rviz
-            time.sleep(0.5)  # FIXME: for some reason the obstacles/mesh weren't being published
-            # here. Perhaps something to do with ros initialization?
-            self.__obstacle_collection = self.__perception.perceive()
-            self.__decision_making.decide(self.__obstacle_collection, self.__goal_poses)
-            self.__visualization_publisher.visualize_world(self.__decision_making.mesh,
-                                                           self.__obstacle_collection)
-
-            while not rospy.is_shutdown() and not self.__terminated:
-                cur_t = time.time()
-                with self.__lock:
-                    # obstacle_collection = self.__perception.perceive()
-                    # self.__decision_making.decide(obstacle_collection)
-                    self.__visualization_publisher.visualize(self.__goal_poses)
-                t_remaining = max(0, 1.0 / RATE - (time.time() - cur_t))
-                time.sleep(t_remaining)
-
-        t = threading.Thread(target=pipeline)
-        t.start()
+        # Publishing first things to rviz
+        time.sleep(0.5)  # FIXME: for some reason the obstacles/mesh arent't being published
+                         # without this. Perhaps something to do with ros initialization?
+        self.unpause()
+        self.pause()
 
     @property
     def drones(self):
@@ -75,31 +52,33 @@ class Swarm:
         """
         return self.__drones
 
-    def stop_thread(self):
-        """
-        Stops the swarm thread from running.
-        """
-        with self.__lock:
-            self.__terminated = True
-
     def set_goal_poses(self, goal_poses):
         """
         Sets goal poses.
         :param goal_poses: Dict of goal StablePoses for each drone in the trajectory planner.
         """
-        self.__goal_poses = goal_poses
+        with self.__lock:
+            self.__goal_poses = goal_poses
+            self.__visualization_publisher.update_goal_poses(self.__goal_poses)
 
     def unpause(self):
         """
-        Unpause all the drones, making them move autonomously again. Note that the drones will
-        initialize paused.
+        Unpause all the drones, recalculating their new trajectories and making them move
+        autonomously again. Note that the drones will initialize paused.
         """
-        with self.__lock:
+
+        def pipeline():
             self.__obstacle_collection = self.__perception.perceive()
-            self.__decision_making.unpause(self.__obstacle_collection, self.__goal_poses)
-            self.__visualization_publisher.visualize_world(self.__decision_making.mesh,
-                                                           self.__obstacle_collection)
-            self.__visualization_publisher.visualize_paths()
+            self.__decision_making.unpause(self.__obstacle_collection, self.__get_drone_poses(),
+                                           self.__goal_poses)
+
+            with self.__lock:
+                self.__visualization_publisher.update_world(self.__decision_making.mesh,
+                                                            self.__obstacle_collection)
+                self.__visualization_publisher.update_paths()
+
+        t = threading.Thread(target=pipeline)
+        t.start()
 
     def pause(self):
         """
@@ -150,3 +129,20 @@ class Swarm:
             else:
                 del self.__drones[drone_id]
             self.__visualization_publisher.remove_drone(self.__drones, drone_id)
+
+    def __get_drone_poses(self):
+        """
+        Creates a dict of drone poses from self.__drones. Use this to safely access these poses
+        from thread issues.
+        :return: Dict of Pose objects for each drone_id.
+        """
+        drone_poses = {}
+        with self.__lock:
+            for drone_id in self.__drones:
+                drone_poses[drone_id] = self.__drones[drone_id].pose
+
+        return drone_poses
+
+    def __del__(self):
+        with self.__lock:
+            self.__visualization_publisher.terminate()

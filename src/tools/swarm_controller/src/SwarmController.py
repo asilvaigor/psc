@@ -51,7 +51,6 @@ class SwarmController(Plugin):
         self.__configure_edits()
         self.__configure_goto_button()
 
-        self.__swarm.run_thread()
         context.add_widget(self.__widget)
 
     def shutdown_plugin(self):
@@ -59,7 +58,7 @@ class SwarmController(Plugin):
         Stops processes.
         """
         self.__kill_simulation()
-        self.__swarm.stop_thread()
+        self.__swarm.__del__()
 
     def __configure_drones_combo_box(self):
         """
@@ -95,11 +94,9 @@ class SwarmController(Plugin):
             self.__clear_drones()
             self.__widget.pause_push_button.animateClick()
             # Restarting swarm to make sure
-            self.__swarm.stop_thread()
             self.__swarm = Swarm()
             self.__goal_poses = {0: StablePose()}
             self.__swarm.set_goal_poses(self.__goal_poses)
-            self.__swarm.run_thread()
 
         self.__widget.drones_combo_box.currentIndexChanged.connect(handle_index_change)
 

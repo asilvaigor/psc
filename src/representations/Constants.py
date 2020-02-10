@@ -1,13 +1,14 @@
 from std_msgs.msg import ColorRGBA
 
-# Rate to run the main loop to control the drones
-RATE = 30  # Hz
+# Rate to update the drones in rviz
+VISUALIZATION_RATE = 30  # Hz
 
 # Number of drones
 N_DRONES = 12
 
 # Double precision
-PRECISION = 1e-3
+GROUND_PRECISION = 0.05  # m
+PRECISION = 1e-3  # m
 
 # Room limits for the drones to be in.
 # TODO: put good values

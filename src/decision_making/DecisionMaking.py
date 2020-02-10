@@ -30,25 +30,28 @@ class DecisionMaking:
         """
         return self.__mesh
 
-    def decide(self, obstacle_collection, goal_poses):
+    def decide(self, obstacle_collection, drone_poses, goal_poses):
         """
         Main loop function for decision making. It calculates the best trajectories for each drone
         to reach the goal avoiding obstacles, and sets them on the drones.
         :param obstacle_collection: Obstacles in the world.
+        :param drone_poses: Dict of Pose objects, for the poses for each drone_id.
         :param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
         """
-        self.__mesh.discretize(self.__drones, obstacle_collection, goal_poses)
-        self.__paths = self.__planner.plan(self.__drones, self.__mesh.goal_nodes)
+        drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
+                                                         goal_poses)
+        self.__paths = self.__planner.plan(drone_nodes, goal_nodes)
 
-    def unpause(self, obstacle_collection, goal_poses):
+    def unpause(self, obstacle_collection, drone_poses, goal_poses):
         """
         Unpause all the drones, calculating the new trajectory and making them move autonomously
         again. Note that the drones will initialize paused.
         :param obstacle_collection: Obstacles in the world.
+        :param drone_poses: Dict of Pose objects, for the poses for each drone_id.
         :param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
         """
         self.__is_paused = False
-        self.decide(obstacle_collection, goal_poses)
+        self.decide(obstacle_collection, drone_poses, goal_poses)
         for drone_id in self.__drones:
             self.__drones[drone_id].follow_path(self.__paths[drone_id])
 
