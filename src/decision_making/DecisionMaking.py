@@ -19,7 +19,7 @@ class DecisionMaking:
         self.__drones = drones
         self.__is_paused = True
         self.__planner = AStarPlanner()
-        self.__mesh = UniformMesh(0.2)
+        self.__mesh = None
         self.__paths = {}
 
     @property
@@ -38,6 +38,7 @@ class DecisionMaking:
         :param drone_poses: Dict of Pose objects, for the poses for each drone_id.
         :param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
         """
+        self.__mesh = UniformMesh(0.2)
         drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
                                                          goal_poses)
         self.__paths = self.__planner.plan(drone_nodes, goal_nodes)

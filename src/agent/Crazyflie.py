@@ -72,13 +72,6 @@ class Crazyflie:
         """
         return self.__path
 
-    def set_path(self, path):
-        """
-        Sets the path for the robot to follow.
-        :param path: List of MeshNodes representing the robot's path.
-        """
-        self.__path = path
-
     def pause(self):
         """
         Makes the drone inactive, stopping its current movement.
