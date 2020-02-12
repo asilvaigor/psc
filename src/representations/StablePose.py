@@ -20,7 +20,6 @@ class StablePose:
         self.z = z
         self.yaw = yaw
 
-    @property
     def position(self):
         """
         Returns Pose base point..

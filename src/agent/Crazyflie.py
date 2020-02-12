@@ -32,7 +32,7 @@ class Crazyflie:
         self.__services = CrazyflieServices(drone_id, high_level)
         self.__pose = Pose()
         self.__mesh_node = None
-        self.__path = []
+        self.__path = None
 
         prefix = "/cf" + str(drone_id)
         self.__prefix = prefix
@@ -68,7 +68,7 @@ class Crazyflie:
     def path(self):
         """
         Robot's path to follow.
-        :return: List of MeshNodes representing the robot's path.
+        :return: Path object, representing the robot's path.
         """
         return self.__path
 
@@ -82,9 +82,8 @@ class Crazyflie:
 
     def follow_path(self, path):
         """
-        Follows a given path in a constant speed.
-        :param path: Array of MeshNode, describing a path in the discretized space for the robot to
-        follow.
+        Follows a given path.
+        :param path: Path object, describing a path in the discrete space for the robot to follow.
         """
         self.__path = path
         trajectory = Trajectory(path)
@@ -132,7 +131,7 @@ class Crazyflie:
         elif isinstance(arg, Pose):
             return self.dist(arg.position)
         elif isinstance(arg, StablePose):
-            return self.dist(arg.position)
+            return self.dist(arg.position())
         elif isinstance(arg, Crazyflie):
             return self.dist(arg.pose)
         else:

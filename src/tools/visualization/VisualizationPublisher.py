@@ -94,7 +94,7 @@ class VisualizationPublisher:
 
     def update_paths(self):
         for drone_id in self.__drones:
-            if len(self.__drones[drone_id].path) > 0:
+            if self.__drones[drone_id].path is not None:
                 self.__update_future_path(drone_id, self.__drones[drone_id].path)
 
     def terminate(self):
@@ -192,7 +192,7 @@ class VisualizationPublisher:
         """
         Refreshes future path in rviz.
         :param drone_id: id of the drone in the path.
-        :param path: List of MeshNode with path to follow.
+        :param path: Path object.
         """
         m = Marker()
         m.header.frame_id = str(1)
@@ -203,9 +203,9 @@ class VisualizationPublisher:
 
         m.scale.x = 0.02
 
-        for i in range(1, len(path)):
-            m.points.append(path[i-1].position())
-            m.points.append(path[i].position())
+        for i in range(1, len(path.poses)):
+            m.points.append(path.poses[i-1].position())
+            m.points.append(path.poses[i].position())
 
         self.__future_path_publisher.publish(m)
 

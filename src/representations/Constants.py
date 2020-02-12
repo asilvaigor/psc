@@ -21,6 +21,7 @@ MAX_Z = 1.5  # m
 
 # Maximum velocities
 # TODO: put good values
+MAX_VEL = 0.375  # m/s
 MAX_VEL_X = 0.375  # m/s
 MAX_VEL_Y = 0.375  # m/s
 MAX_VEL_Z = 0.375  # m/s

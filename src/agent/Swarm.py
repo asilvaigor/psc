@@ -39,7 +39,7 @@ class Swarm:
         self.__lock = threading.Lock()
 
         # Publishing first things to rviz
-        time.sleep(0.5)  # FIXME: for some reason the obstacles/mesh arent't being published
+        time.sleep(0.25)  # FIXME: for some reason the obstacles/mesh arent't being published
                          # without this. Perhaps something to do with ros initialization?
         self.unpause()
         self.pause()

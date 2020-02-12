@@ -1,7 +1,5 @@
-from geometry_msgs.msg import Pose
-
-from agent.Crazyflie import Crazyflie
 from decision_making.AStarPlanner import AStarPlanner
+from decision_making.Coordinator import Coordinator
 from decision_making.UniformMesh import UniformMesh
 
 
@@ -19,6 +17,7 @@ class DecisionMaking:
         self.__drones = drones
         self.__is_paused = True
         self.__planner = AStarPlanner()
+        self.__coordinator = Coordinator()
         self.__mesh = None
         self.__paths = {}
 
@@ -41,7 +40,8 @@ class DecisionMaking:
         self.__mesh = UniformMesh(0.2)
         drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
                                                          goal_poses)
-        self.__paths = self.__planner.plan(drone_nodes, goal_nodes)
+        paths_nodes = self.__planner.plan(drone_nodes, goal_nodes)
+        self.__paths = self.__coordinator.coordinate(paths_nodes)
 
     def unpause(self, obstacle_collection, drone_poses, goal_poses):
         """
