@@ -1,5 +1,5 @@
 class Event:
-    def __init__(self, event_type):
+    def __init__(self, event_type, time):
         """
             :param event_type: 0 if it's a critical event
                          1 if stopping to avoid a future collision (when a projection of the path reaches a
@@ -9,9 +9,11 @@ class Event:
                          3 if stopping, slowing or speeding up when the path initiates or breaks contact with
                            some coordination space obstacle
                          4 if stopping each robot that reaches its goal
+            :param time: time of the event
             :param more characteristics of the event?
         """
         self.__event_type = event_type
+        self.__time = time
 
         # TODO What each event means and how to describe it
         if self.__event_type == 0:
