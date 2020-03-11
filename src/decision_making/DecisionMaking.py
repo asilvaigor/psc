@@ -41,7 +41,7 @@ class DecisionMaking:
         drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
                                                          goal_poses)
         paths_nodes = self.__planner.plan(drone_nodes, goal_nodes)
-        self.__paths = self.__coordinator.coordinate(paths_nodes)
+        self.__paths = self.__coordinator.coordinate_stub(paths_nodes)
 
     def unpause(self, obstacle_collection, drone_poses, goal_poses):
         """
