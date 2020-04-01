@@ -40,7 +40,9 @@ class DecisionMaking:
         self.__mesh = UniformMesh(0.2)
         drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
                                                          goal_poses)
-        paths_nodes = self.__planner.plan(drone_nodes, goal_nodes)
+        paths_nodes = {}
+        for drone_id in drone_nodes:
+            paths_nodes[drone_id] = self.__planner.plan(drone_nodes[drone_id], goal_nodes[drone_id])
         self.__paths = self.__coordinator.coordinate_stub(paths_nodes)
 
     def unpause(self, obstacle_collection, drone_poses, goal_poses):

@@ -1,11 +1,11 @@
 class Delta:
     def __init__(self, nodes_paths):
-        # First we calculate the
-
         """
-                :param paths:
-                :return: Dict mapping tuple (i, j) of two drone_ids to array of collision regions, which are
-               ObstacleRegion
+        Default constructor. Calculates the regions of intersection between the paths of each drone.
+        It also calculates the best orientation for each intersection (CW or CCW) by doing A* for
+        every two drones.
+        :param nodes_paths: Dict mapping drone_id to List of MeshNode objects representing a path to
+        follow.
         """
         # We calculate the size of the path for each drone so we can calculate the proportions after
         trajectory_size = {}

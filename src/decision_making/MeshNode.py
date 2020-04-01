@@ -1,20 +1,21 @@
 from geometry_msgs.msg import Pose, Point
 import math
 
+from decision_making.Node import Node
 from representations.Constants import GROUND_PRECISION, PRECISION
 from representations.StablePose import StablePose
 
 
-class MeshNode:
+class MeshNode(Node):
     """
     Node for the graph representing the world mesh, a discrete representation of the space.
     """
 
     def __init__(self, x=0.0, y=0.0, z=0.0):
+        Node.__init__(self)
         self.__x = x
         self.__y = y
         self.__z = z
-        self.edges = []
 
     @property
     def x(self):
@@ -30,17 +31,6 @@ class MeshNode:
 
     def position(self):
         return Point(self.x, self.y, self.z)
-
-    def add_edge(self, node):
-        """
-        Adds an edge to the node.
-        :param node:
-        """
-        if node in self.edges:
-            return
-
-        self.edges.append(node)
-        node.edges.append(self)
 
     def dist(self, arg):
         """

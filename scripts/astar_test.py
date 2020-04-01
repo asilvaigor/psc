@@ -36,8 +36,10 @@ if __name__ == "__main__":
 
     # Running algorithm
     planner = AStarPlanner()
-    path = planner.plan(drones, goal_poses)
-    r = remap(path, nodes)
+    paths = {}
+    for drone_id in drones:
+        paths[drone_id] = planner.plan(drones[drone_id].mesh_node, goal_poses[drone_id])
+    r = remap(paths, nodes)
 
     print(r)
     assert(r == {1: [0, 3, 4], 2: [1, 0, 2]})
