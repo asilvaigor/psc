@@ -1,4 +1,8 @@
+import sys
+from os.path import expanduser
+sys.path.insert(0, expanduser("~")+'/catkin_ws/src/generate_mesh/build')
 import mesh
+
 from MeshNode import MeshNode
 from representations.obstacles.Cylinder import Cylinder
 from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MAX_Z
