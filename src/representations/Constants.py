@@ -38,6 +38,7 @@ MAX_ACC_YAW = 0.03  # rad/s^2
 
 # Margin for a drone to pass next to an obstacle.
 OBSTACLE_MARGIN = 0.2  # m
+MESH_EDGE_DIST = 0.4
 
 # Colors for drones
 BLUE = ColorRGBA(0.0, 0.0, 1.0, 1.0)

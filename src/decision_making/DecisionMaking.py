@@ -1,6 +1,6 @@
 from decision_making.AStarPlanner import AStarPlanner
 from decision_making.Coordinator import Coordinator
-from decision_making.UniformMesh import UniformMesh
+from decision_making.CGALMesh import CGALMesh
 
 
 class DecisionMaking:
@@ -37,7 +37,7 @@ class DecisionMaking:
         :param drone_poses: Dict of Pose objects, for the poses for each drone_id.
         :param goal_poses: Dict of StablePose objects, for the goal pose for each drone_id.
         """
-        self.__mesh = UniformMesh(0.2)
+        self.__mesh = CGALMesh()
         drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
                                                          goal_poses)
         paths_nodes = {}
