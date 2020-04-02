@@ -1,3 +1,8 @@
+import sys
+import os
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(1, dir_path + '/../../../generate_mesh/build-python/CGAL/')
 import mesh
 from MeshNode import MeshNode
 from representations.obstacles.Cylinder import Cylinder
@@ -54,7 +59,6 @@ class CGALMesh:
         x_dim = MAX_X - MIN_X
         y_dim = MAX_Y - MIN_Y
         z_dim = MAX_Z
-        print(cyl_c1_list, cyl_c2_list, cyl_r_list)
         mesh_nodes = mesh.generateMesh([x_dim, y_dim, z_dim],
                                        cyl_c1_list, cyl_c2_list, cyl_r_list, cyl_dir_list)
         for _ in mesh_nodes:
