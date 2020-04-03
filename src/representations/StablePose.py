@@ -68,13 +68,8 @@ class StablePose:
         :param p: Pose to be added.
         :return: Sum of both poses.
         """
-        ang = self.yaw + p.yaw
-        while ang > pi:
-            ang -= 2 * pi
-        while ang < -pi:
-            ang += 2 * pi
-
-        return StablePose(self.x + p.x, self.y + p.y, self.z + p.z, ang)
+        return StablePose(self.x + p.x, self.y + p.y, self.z + p.z,
+                          self.__normalize_ang(self.yaw + p.yaw))
 
     def __sub__(self, p):
         """
@@ -84,6 +79,23 @@ class StablePose:
         """
         return self + p.__neg__()
 
+    def __mul__(self, k):
+        """
+        Operator StablePose * k, works as a vector.
+        :param k: float value.
+        :return: Multiplication of pose by scalar.
+        """
+        return StablePose(self.x * k, self.y * k, self.z * k,
+                          self.__normalize_ang(self.yaw * k))
+
+    def __div__(self, k):
+        """
+        Operator StablePose / k, works as a vector.
+        :param k: float value.
+        :return: Multiplication of pose by scalar.
+        """
+        return self.__mul__(1.0 / k)
+
     def __repr__(self):
         """
         Used for printing.
@@ -91,3 +103,16 @@ class StablePose:
         """
         return "[" + str(self.x) + ", " + str(self.y) + ", " + \
                str(self.z) + ", " + str(self.yaw) + "]"
+
+    @staticmethod
+    def __normalize_ang(ang):
+        """
+        Normalizes an angle to [-pi, pi].
+        :param ang: float, Angle in radians.
+        :return: float, Normalized angle.
+        """
+        while ang > pi:
+            ang -= 2 * pi
+        while ang < -pi:
+            ang += 2 * pi
+        return ang

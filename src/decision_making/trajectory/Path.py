@@ -1,4 +1,5 @@
 from representations.Constants import MAX_VEL
+from representations.Point import Point
 
 
 class Path:
@@ -14,12 +15,15 @@ class Path:
         """
         self.__poses = []
         self.__times = []
+        self.__length = 0.0
         if poses is not None:
             for i in range(len(poses)):
                 if times is None or i >= len(times):
                     self.add_pose(poses[i])
                 else:
                     self.add_pose(poses[i], times[i])
+        for i in range(len(self.__poses) - 1):
+            self.__length += Point(self.__poses[i+1].position).dist(Point(self.__poses[i]))
 
     @property
     def poses(self):
@@ -28,6 +32,10 @@ class Path:
     @property
     def times(self):
         return self.__times
+
+    @property
+    def length(self):
+        return self.__length
 
     def add_pose(self, pose, time=None):
         """

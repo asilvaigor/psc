@@ -1,48 +1,46 @@
 class Delta:
-    def __init__(self, nodes_paths):
+    def __init__(self, paths):
         """
-        Default constructor. Calculates the regions of intersection between the paths of each drone.
+        Calculates the regions of intersection between the paths of each drone.
         It also calculates the best orientation for each intersection (CW or CCW) by doing A* for
         every two drones.
-        :param nodes_paths: Dict mapping drone_id to List of MeshNode objects representing a path to
-        follow.
+        :param paths: Dict mapping drone_id to Path objects representing a path to follow.
         """
-        # We calculate the size of the path for each drone so we can calculate the proportions after
-        trajectory_size = {}
-        for drone_id in nodes_paths:
-            path = nodes_paths[drone_id]
-            distance = 0
-            ant = path[0]
-            for i in range(1, len(path)):
-                distance += path[i].dist(ant)
-                ant = path[i]
-            trajectory_size[drone_id] = distance
+        self.__deltas = {}  # Dict mapping tuple (i, j) of two drone_ids to list of collision
+        # regions, which are Intersection
 
-        # We create the deltas
-        self.__deltas = {}
-        for i in nodes_paths:
-            for j in nodes_paths:
+        # Computing deltas
+        for i in paths:
+            for j in paths:
                 if j == i:
                     continue
-                self.__deltas[(i, j)] = self.__compute_delta(nodes_paths[i], nodes_paths[j], i, j, trajectory_size[i],
-                                                      trajectory_size[j])
+                if (j, i) in self.__deltas:
+                    self[i, j] = self[j, i]
+                else:
+                    self[i, j] = self.__compute_delta(paths[i], paths[j])
 
-
-    def __compute_delta(self, path_i, path_j, i, j, trajectory_size_i, trajectory_size_j):
+    def __compute_delta(self, path_1, path_2):
         """
-                :param ???:
-                :return: Array of Obstacle_regions
-                Dict mapping tuple (i, j) of two drone_ids to array of collision regions, which are
-               ObstacleRegion
+        Computes the regions of intersection between two paths.
+        :param path_1: First path.
+        :param path_2: Second path.
+        :return: List of Intersection objects.
         """
-        # TODO compute each delta
-        # https://math.stackexchange.com/questions/27559/finding-points-on-two-linear-lines-which-are-a-particular-distance-apart
-        # TODO implement to find the points where there is a minimum distance
-        pass
+        raise NotImplementedError
 
-    def get_collisions(self, i, j):
-        return self.__deltas[(i, j)]
+    def __getitem__(self, item):
+        """
+        Accesses __deltas.
+        :param item: Tuple of ints with two drone_ids.
+        :return: List of Intersection objects.
+        """
+        assert(len(item) == 2)
+        return self.__deltas[item]
 
-    def get_critical_events(self, i, j):
-        # TODO don't know what to do yet
-        pass
+    def __setitem__(self, item, delta):
+        """
+        Sets __deltas.
+        :param item: Tuple of ints with two drone_ids.
+        :param delta: List of Intersection objects.
+        """
+        self.__deltas[item] = delta

@@ -138,7 +138,6 @@ class Segment:
         :return: Tuple of Points. The first one is the start of the region and the second the end.
         Both points are in the segment.
         Note: If there is no region, returns None.
-        list.
         """
         # No region on the segment is near
         if self.min_distance(segment) > dist:

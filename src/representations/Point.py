@@ -1,13 +1,36 @@
 import math
+from geometry_msgs import msg
 
 from representations.Constants import EPS
 
 
 class Point:
-    def __init__(self, _x=0.0, _y=0.0, _z=0.0):
-        self.x = _x
-        self.y = _y
-        self.z = _z
+    def __init__(self, *args):
+        """
+        Default constructor. Receives geometry_msgs.Point or (x, y, z).
+        :param args: See below.
+
+        :Arguments:
+            * point: geometry_msgs.Point. Can also be passed as (x, y, z).
+            * x: x for the Point.
+            * y: y for the Point.
+            * z: z for the Point.
+        """
+        self.x = 0.0
+        self.y = 0.0
+        self.z = 0.0
+
+        if len(args) == 1 and isinstance(args[0], msg.Point):
+            self.x = args[0].x
+            self.y = args[0].y
+            self.z = args[0].z
+        else:
+            if len(args) > 0:
+                self.x = args[0]
+            if len(args) > 1:
+                self.y = args[1]
+            if len(args) > 2:
+                self.z = args[2]
 
     def dist(self, p):
         """
