@@ -7,8 +7,8 @@ VISUALIZATION_RATE = 30  # Hz
 N_DRONES = 12
 
 # Double precision
-GROUND_PRECISION = 0.05  # m
-PRECISION = 1e-3  # m
+GROUND_EPS = 0.05  # m
+EPS = 1e-6  # m
 
 # Room limits for the drones to be in.
 # TODO: put good values
