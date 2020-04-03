@@ -14,7 +14,6 @@ source /opt/ros/kinetic/setup.bash
 cd ~/catkin_ws/src
 catkin_init_workspace
 cd ..
-catkin_make
 echo 'source ~/catkin_ws/devel/setup.bash' >> ~/.bashrc
 source ~/catkin_ws/devel/setup.bash
 source ~/.bashrc

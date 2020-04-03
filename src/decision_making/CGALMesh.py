@@ -4,6 +4,7 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(1, dir_path + '/../../../generate_mesh/build-python/CGAL/')
 import mesh
+
 from MeshNode import MeshNode
 from representations.obstacles.Cylinder import Cylinder
 from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MAX_Z
