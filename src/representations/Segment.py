@@ -46,6 +46,45 @@ class Segment:
         """
         return self.dist_to_point(p) < EPS
 
+    def intersects(self, s):
+        """
+        Checks if the segment intersects another.
+        :param s: Segment
+        :return: Boolean, True if the segments intersect.
+        """
+        return self.min_distance(s) < EPS
+
+    def intersects_at_extremity(self, s):
+        """
+        Checks if the segment intersects another one of the other segment's endpoints.
+        :param s: Segment
+        :return: True if the segment contains one of the given segment's endpoints.
+        """
+        return self.contains(s.a) or self.contains(s.b)
+
+    def intersection_2d(self, s):
+        """
+        Finds the intersection with another segment. Only works for 2d segments.
+        :param s: Segment.
+        :return: Point or None, representing the intersection.
+        """
+        i = ((s.a.x - self.a.x) * (s.b.y - s.a.y) - (s.a.y - self.a.y) * (s.b.x - s.a.x)) / \
+            ((self.b.x - self.a.x) * (s.b.y - s.a.y) - (self.b.y - self.a.y) * (s.b.x - s.a.x))
+        pt = Point(self.a.x + (self.b.x - self.a.x) * i, self.a.y + (self.b.y - self.a.y) * i)
+        if s.contains(pt):
+            return pt
+        else:
+            return None
+
+    def intersection_with_line_2d(self, p, direction):
+        """
+        Finds the intersection of the segment with an semi-infinite line. Only works for 2d.
+        :param p: Point the line starts.
+        :param direction: Point, representing a vector of the direction of the line.
+        :return: Point or None, representing the intersection.
+        """
+        return self.intersection_2d(Segment(p, p + direction * 1000))
+
     def min_distance(self, segment):
         """
         Calculates the minimum distance between two line segments.

@@ -6,12 +6,20 @@ class Node:
     def __init__(self):
         self.edges = []
 
+    def has_edge(self, node):
+        """
+        Checks if there already is an edge to that node.
+        :param node:
+        :return: Boolean, True if the nodes are already connected.
+        """
+        return node in self.edges
+
     def add_edge(self, node):
         """
         Adds an edge to the node.
         :param node:
         """
-        if node in self.edges:
+        if self.has_edge(node):
             return
 
         self.edges.append(node)
