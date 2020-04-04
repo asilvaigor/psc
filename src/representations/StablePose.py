@@ -1,6 +1,4 @@
-import numpy as np
-from math import pi
-
+import math
 from geometry_msgs.msg import Pose, Quaternion, Point
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
@@ -54,6 +52,14 @@ class StablePose:
                       pose.orientation.w)
         yaw = euler_from_quaternion(quaternion)[2]
         return StablePose(pose.position.x, pose.position.y, pose.position.z, yaw)
+
+    def dist(self, pose):
+        """
+        Calculates euclidian distance to another stable pose.
+        :param pose: StablePose.
+        :return: float, distance to the pose.
+        """
+        return math.hypot(math.hypot(self.x - pose.x, self.y - pose.y), self.z - pose.z)
 
     def __neg__(self):
         """
@@ -111,8 +117,8 @@ class StablePose:
         :param ang: float, Angle in radians.
         :return: float, Normalized angle.
         """
-        while ang > pi:
-            ang -= 2 * pi
-        while ang < -pi:
-            ang += 2 * pi
+        while ang > math.pi:
+            ang -= 2 * math.pi
+        while ang < -math.pi:
+            ang += 2 * math.pi
         return ang

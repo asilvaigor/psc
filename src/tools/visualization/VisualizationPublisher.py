@@ -15,6 +15,7 @@ from representations.Constants import WHITE, RED
 from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z
 from representations.Constants import VISUALIZATION_RATE
 from representations.obstacles.Cylinder import Cylinder
+import representations.Point
 
 
 class VisualizationPublisher:
@@ -32,6 +33,8 @@ class VisualizationPublisher:
         self.__past_path_publisher = rospy.Publisher('visualization_ppath', MarkerArray,
                                                      queue_size=10)
         self.__future_path_publisher = rospy.Publisher('visualization_fpath', Marker, queue_size=10)
+        self.__future_path_collisions_publisher = rospy.Publisher('visualization_cpath', Marker,
+                                                                  queue_size=10)
         self.__goal_publisher = rospy.Publisher('visualization_goals', MarkerArray, queue_size=10)
         self.__obstacle_publisher = rospy.Publisher('visualization_obstacles', MarkerArray,
                                                     queue_size=10)
@@ -200,14 +203,36 @@ class VisualizationPublisher:
         m.action = Marker.ADD
         m.id = drone_id
         m.color = COLORS[self.__drone_color_map[drone_id]]
-
         m.scale.x = 0.02
+
+        c = Marker()
+        c.header.frame_id = str(1)
+        c.type = Marker.POINTS
+        c.action = Marker.ADD
+        c.id = drone_id
+        c.color = WHITE
+        c.scale.x = 0.05
+        c.scale.y = 0.05
+        c.scale.z = 0.05
 
         for i in range(1, len(path.poses)):
             m.points.append(path.poses[i-1].position())
             m.points.append(path.poses[i].position())
 
+        for intersection in path.intersections:
+            dist_from_start = 0
+            for i in range(1, len(path.poses)):
+                p1 = representations.Point.Point(path.poses[i - 1].position())
+                p2 = representations.Point.Point(path.poses[i].position())
+                for j in range(2):
+                    if dist_from_start < intersection[j] < dist_from_start + p1.dist(p2):
+                        pt = p1 + (p2 - p1) * (intersection[j] - dist_from_start) / p1.dist(p2)
+                        c.points.append(Point(pt.x, pt.y, pt.z))
+
+                dist_from_start += p1.dist(p2)
+
         self.__future_path_publisher.publish(m)
+        self.__future_path_collisions_publisher.publish(c)
 
     @staticmethod
     def __get_pose_marker(pose, color, id, scale=1.0, lifetime=1):

@@ -20,16 +20,20 @@ class Coordinator:
         """
         delta = Delta(paths)
 
+        # FIXME
+        return self.coordinate_stub(paths)
+
         # Initializing vectors x and t, and x_goal
-        x0 = np.empty(shape=(1, len(paths)), dtype=StablePose)
-        x_goal = np.empty(shape=(1, len(paths)), dtype=StablePose)
+        x0 = []
+        x_goal = []
         x = []  # List of np arrays, size n_events x n_drones
         t = []  # List size n_events
         for drone_id in paths:
-            np.append(x0, paths[drone_id].poses[0])
-            np.append(x_goal, paths[drone_id].poses[-1])
-        x.append(x0)
+            x0.append(paths[drone_id].poses[0])
+            x_goal.append(paths[drone_id].poses[-1])
+        x.append(np.array(x0))
         t.append(0)
+        x_goal = np.array(x_goal)
 
         # Initializing W, a list of (i, j, a).
         # Robot i is waiting for Robot j to reach point a.

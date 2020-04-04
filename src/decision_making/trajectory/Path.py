@@ -15,6 +15,7 @@ class Path:
         """
         self.__poses = []
         self.__times = []
+        self.__intersections = []
         self.__length = 0.0
         if poses is not None:
             for i in range(len(poses)):
@@ -23,7 +24,8 @@ class Path:
                 else:
                     self.add_pose(poses[i], times[i])
         for i in range(len(self.__poses) - 1):
-            self.__length += Point(self.__poses[i+1].position).dist(Point(self.__poses[i]))
+            self.__length += Point(self.__poses[i+1].position()).dist(
+                Point(self.__poses[i].position()))
 
     @property
     def poses(self):
@@ -36,6 +38,10 @@ class Path:
     @property
     def length(self):
         return self.__length
+
+    @property
+    def intersections(self):
+        return self.__intersections
 
     def add_pose(self, pose, time=None):
         """
@@ -53,3 +59,18 @@ class Path:
             else:
                 duration = self.__poses[-1].dist(self.__poses[-2]) / MAX_VEL
                 self.__times.append(self.__times[-1] + duration)
+
+    def add_intersection(self, intersection):
+        """
+        Adds points where the path collides with other paths. Only used for visualization.
+        :param intersection: Tuple of floats, with distances at start and end of the region, in
+        respect to the beginning of the path.
+        """
+        self.__intersections.append(intersection)
+
+    def __repr__(self):
+        s = "["
+        for i in range(len(self.__poses) - 1):
+            s += Point(self.__poses[i].position()).__repr__() + " -> "
+        s += Point(self.__poses[-1].position()).__repr__()
+        return s + "]"

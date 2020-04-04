@@ -21,16 +21,16 @@ class Point:
         self.z = 0.0
 
         if len(args) == 1 and isinstance(args[0], msg.Point):
-            self.x = args[0].x
-            self.y = args[0].y
-            self.z = args[0].z
+            self.x = float(args[0].x)
+            self.y = float(args[0].y)
+            self.z = float(args[0].z)
         else:
             if len(args) > 0:
-                self.x = args[0]
+                self.x = float(args[0])
             if len(args) > 1:
-                self.y = args[1]
+                self.y = float(args[1])
             if len(args) > 2:
-                self.z = args[2]
+                self.z = float(args[2])
 
     def dist(self, p):
         """

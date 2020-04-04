@@ -1,11 +1,11 @@
 class Intersection:
-    def __init__(self, orientation, interval_1, interval_2):
+    def __init__(self, interval_1, interval_2, orientation=0):
         """
-        :param orientation: 1 for clockwise and -1 for counterclockwise.
         :param interval_1: Tuple of floats, corresponding to where the intersection begins and ends
         on the first path. Each float is the distance to the beginning of the path.
         :param interval_2: Tuple of floats, corresponding to where the intersection begins and ends
         on the second path. Each float is the distance to the beginning of the path.
+        :param orientation: 1 for clockwise and -1 for counterclockwise.
         """
         self.__orientation = orientation
         self.__interval_1 = interval_1
@@ -37,3 +37,6 @@ class Intersection:
     def set_orientation(self, orientation):
         assert(orientation == 1 or orientation == -1)
         self.__orientation = orientation
+
+    def __repr__(self):
+        return self.__interval_1.__repr__() + "/" + self.__interval_2.__repr__()

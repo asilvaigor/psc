@@ -1,5 +1,6 @@
 from representations.Point import Point
 from representations.Constants import EPS
+from representations.Constants import OBSTACLE_MARGIN
 
 
 class Segment:
@@ -8,6 +9,8 @@ class Segment:
     """
 
     def __init__(self, _a, _b):
+        assert(isinstance(_a, Point))
+        assert(isinstance(_b, Point))
         self.a = _a
         self.b = _b
 
@@ -127,7 +130,7 @@ class Segment:
         d = max(d, self.b.dist(segment.b))
         return d
 
-    def region_near_segment(self, segment, dist):
+    def region_near_segment(self, segment, dist=OBSTACLE_MARGIN):
         """
         Calculates a region in the current segment which has distance less than a value from another
         segment. In this region, all points have a minimum distance to the other segment less than
@@ -189,4 +192,4 @@ class Segment:
         Used for printing.
         :return: String representing Segment.
         """
-        return self.a.__repr__() + " -> " + self.b.__repr__()
+        return "[" + self.a.__repr__() + " -> " + self.b.__repr__() + "]"

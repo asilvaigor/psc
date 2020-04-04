@@ -44,9 +44,9 @@ class DecisionMaking:
                                                          goal_poses)
         for drone_id in drone_nodes:
             self.__paths[drone_id] = Path(
-                [StablePose(node) for node in self.__planner.plan(drone_nodes[drone_id],
-                                                                  goal_nodes[drone_id])])
-        self.__paths = self.__coordinator.coordinate_stub(self.__paths)
+                [StablePose(node.x, node.y, node.z) for node in self.__planner.plan(
+                    drone_nodes[drone_id], goal_nodes[drone_id])])
+        self.__paths = self.__coordinator.coordinate(self.__paths)
 
     def unpause(self, obstacle_collection, drone_poses, goal_poses):
         """
