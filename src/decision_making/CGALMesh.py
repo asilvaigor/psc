@@ -9,6 +9,9 @@ from MeshNode import MeshNode
 from representations.obstacles.Cylinder import Cylinder
 from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MAX_Z
 from representations.Constants import MESH_EDGE_DIST
+from representations.Constants import DRONE_HEIGHT
+from representations.Segment import Segment
+from representations.Point import Point
 
 
 class CGALMesh:
@@ -73,8 +76,24 @@ class CGALMesh:
 
         def add_node(n):
             for node in self.__nodes:
-                if n.dist(node) < MESH_EDGE_DIST:
-                    n.add_edge(node)
+                # Only short edges that are not on the ground or through obstacles
+                if n.dist(node) < MESH_EDGE_DIST and (n.z > DRONE_HEIGHT or node.z > DRONE_HEIGHT):
+                    valid_edge = True
+                    for obs in obstacle_collection.obstacles:
+                        if isinstance(obs, Cylinder):
+                            cylinder_seg = Segment(Point(obs.position), Point(obs.position))
+                            if obs.axis == 'x':
+                                cylinder_seg.b += Point(1000, 0, 0)
+                            elif obs.axis == 'y':
+                                cylinder_seg.b += Point(0, 1000, 0)
+                            else:
+                                cylinder_seg.b += Point(0, 0, 1000)
+                            edge_seg = Segment(Point(n.position()), Point(node.position()))
+
+                            if cylinder_seg.min_distance(edge_seg) < obs.radius:
+                                valid_edge = False
+                    if valid_edge:
+                        n.add_edge(node)
 
         # Adding drone nodes
         drone_nodes = {}
