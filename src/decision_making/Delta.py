@@ -24,7 +24,7 @@ class Delta:
         self.__deltas = {}  # Dict mapping tuple (i, j) of two drone_ids to list of collision
         # regions, which are Intersection
         self.__paths = paths
-        self.__delta_path = []  # Used only for visualization
+        self.__delta_path = {}  # Used only for visualization
 
         # Computing deltas
         for i in paths:
@@ -38,7 +38,7 @@ class Delta:
                                                        intersection.interval_1,
                                                        -intersection.orientation))
                 else:
-                    self[i, j] = self.__compute_intersections(paths[i], paths[j])
+                    self[i, j] = self.__compute_intersections(paths[i], paths[j], (i, j))
 
     def plot(self, i, j, x=None):
         """
@@ -66,10 +66,10 @@ class Delta:
                     horizontalalignment='center', verticalalignment='center', color="w")
 
         for k in range(len(self.__delta_path) - 1):
-            x1 = self.__delta_path[k].x
-            x2 = self.__delta_path[k+1].x
-            y1 = self.__delta_path[k].y
-            y2 = self.__delta_path[k+1].y
+            x1 = self.__delta_path[i, j][k].x
+            x2 = self.__delta_path[i, j][k+1].x
+            y1 = self.__delta_path[i, j][k].y
+            y2 = self.__delta_path[i, j][k+1].y
             ax.add_line(mlines.Line2D([x1, x2], [y1, y2], color="r"))
 
         if x is not None:
@@ -81,7 +81,7 @@ class Delta:
         ax.set_ylim([0, self.__paths[j].length])
         plt.show()
 
-    def __compute_intersections(self, path_1, path_2):
+    def __compute_intersections(self, path_1, path_2, ids):
         """
         Computes the regions of intersection between two paths.
         O(ns1*ns2 + i^3), where ns1: number of segments in path 1,
@@ -170,11 +170,11 @@ class Delta:
             path_2.add_intersection(i.interval_2)
 
         # Calculating orientations
-        self.__compute_orientations(intersections, path_1.length, path_2.length)
+        self.__compute_orientations(intersections, path_1.length, path_2.length, ids)
 
         return intersections
 
-    def __compute_orientations(self, intersections, l1, l2):
+    def __compute_orientations(self, intersections, l1, l2, ids):
         """
         Computes orientations (CW or CCW) for every intersection. It does this by running A* on the
         2D space of the intersections, in which each intersection generates 4 nodes.
@@ -231,13 +231,14 @@ class Delta:
                 return float("inf")
             return max(abs(node1.x - node2.x), abs(node1.y - node2.y))
 
-        self.__delta_path = AStarPlanner().plan(nodes[0], nodes[1], dist_function)
+        self.__delta_path[ids] = AStarPlanner().plan(nodes[0], nodes[1], dist_function)
 
         # Checking sides, for each intersection
         for i in intersections:
             clock_wise = False
-            for k in range(len(self.__delta_path) - 1):
-                s = Segment(self.__delta_path[k].position(), self.__delta_path[k + 1].position())
+            for k in range(len(self.__delta_path[ids]) - 1):
+                s = Segment(self.__delta_path[ids][k].position(),
+                            self.__delta_path[ids][k + 1].position())
                 # Using middle of the intersection
                 p = Point((i.interval_1[0] + i.interval_1[1]) / 2.0,
                           (i.interval_2[0] + i.interval_2[1]) / 2.0)

@@ -204,13 +204,14 @@ class Coordinator:
 
             paths[drone_id] = Path()
             paths[drone_id].add_pose(poses[0], 0)
+            paths[drone_id].intersections = old_paths[drone_id].intersections
 
             i = 1  # Iterating in events
             j = 1  # Iterating in poses
             while i < n_events and j < len(poses):
                 # Change velocity but keep speed constant
                 if lengths[j] + EPS < merged_x[i]:
-                    factor = (lengths[j] - lengths[j - 1]) / (merged_x[i] - lengths[j - 1])
+                    factor = (lengths[j] - merged_x[i - 1]) / (merged_x[i] - merged_x[i - 1])
                     dt = (merged_t[i] - merged_t[i - 1]) * factor
                     paths[drone_id].add_pose(poses[j], merged_t[i - 1] + dt)
                     j += 1

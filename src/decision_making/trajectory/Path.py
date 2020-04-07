@@ -15,7 +15,7 @@ class Path:
         """
         self.__poses = []
         self.__times = []
-        self.__intersections = []
+        self.intersections = []
         self.__lengths = []
         if poses is not None:
             for i in range(len(poses)):
@@ -35,10 +35,6 @@ class Path:
     @property
     def length(self):
         return self.__lengths[-1]
-
-    @property
-    def intersections(self):
-        return self.__intersections
 
     def add_pose(self, pose, time=None):
         """
@@ -67,7 +63,7 @@ class Path:
         :param intersection: Tuple of floats, with distances at start and end of the region, in
         respect to the beginning of the path.
         """
-        self.__intersections.append(intersection)
+        self.intersections.append(intersection)
 
     def length_until(self, i):
         """
