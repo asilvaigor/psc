@@ -40,11 +40,12 @@ class Delta:
                 else:
                     self[i, j] = self.__compute_intersections(paths[i], paths[j])
 
-    def plot(self, i, j):
+    def plot(self, i, j, x=None):
         """
         Plots the delta space with matplotlib.
         :param i: Id of the first drone.
         :param j: Id of the second drone.
+        :param x: Tuple of list of floats, which represents a set of points to be plotted as a path.
         """
         size_transf = 6.4 / max(self.__paths[i].length, self.__paths[j].length)
         plt.figure(1, figsize=(self.__paths[i].length * size_transf,
@@ -70,6 +71,11 @@ class Delta:
             y1 = self.__delta_path[k].y
             y2 = self.__delta_path[k+1].y
             ax.add_line(mlines.Line2D([x1, x2], [y1, y2], color="r"))
+
+        if x is not None:
+            for k in range(len(x[0]) - 1):
+                ax.add_line(mlines.Line2D([x[0][k], x[0][k + 1]],
+                                          [x[1][k], x[1][k + 1]], color="b"))
 
         ax.set_xlim([0, self.__paths[i].length])
         ax.set_ylim([0, self.__paths[j].length])

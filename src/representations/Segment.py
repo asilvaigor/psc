@@ -68,11 +68,13 @@ class Segment:
         :param s: Segment.
         :return: Point or None, representing the intersection.
         """
-        i = ((s.a.x - self.a.x) * (s.b.y - s.a.y) - (s.a.y - self.a.y) * (s.b.x - s.a.x)) / \
-            ((self.b.x - self.a.x) * (s.b.y - s.a.y) - (self.b.y - self.a.y) * (s.b.x - s.a.x))
-        pt = Point(self.a.x + (self.b.x - self.a.x) * i, self.a.y + (self.b.y - self.a.y) * i)
-        if s.contains(pt):
-            return pt
+        num = ((s.a.x - self.a.x) * (s.b.y - s.a.y) - (s.a.y - self.a.y) * (s.b.x - s.a.x))
+        den = ((self.b.x - self.a.x) * (s.b.y - s.a.y) - (self.b.y - self.a.y) * (s.b.x - s.a.x))
+        if den > 0:
+            i = num / den
+            pt = Point(self.a.x + (self.b.x - self.a.x) * i, self.a.y + (self.b.y - self.a.y) * i)
+            if s.contains(pt):
+                return pt
         else:
             return None
 

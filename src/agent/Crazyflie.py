@@ -11,7 +11,7 @@ from agent.CrazyflieStateMachine import CrazyflieStateMachine
 from decision_making.MeshNode import MeshNode
 from decision_making.trajectory.Trajectory import Trajectory
 from representations.StablePose import StablePose
-from representations.Constants import MAX_VEL_X, MAX_VEL_Y, MAX_VEL_Z, MAX_VEL_YAW
+from representations.Constants import MAX_VEL, MAX_VEL, MAX_VEL, MAX_VEL_YAW
 from CrazyflieServices import CrazyflieServices
 
 
@@ -193,7 +193,7 @@ class Crazyflie:
         :param group_mask: TODO: what is this?
         """
         if duration == -1:
-            duration = self.stable_pose.z / MAX_VEL_Z
+            duration = self.stable_pose.z / MAX_VEL
         self.__services.land(target_height, duration, group_mask)
         self.__state_machine.start_movement(duration, True)
 
@@ -216,8 +216,8 @@ class Crazyflie:
         """
         delta = goal_stable_pose - self.stable_pose
         if duration == -1:
-            duration = max(abs(delta.x) / MAX_VEL_X, abs(delta.y) / MAX_VEL_Y,
-                           abs(delta.z) / MAX_VEL_Z, abs(delta.yaw) / MAX_VEL_YAW)
+            duration = max(abs(delta.x) / MAX_VEL, abs(delta.y) / MAX_VEL,
+                           abs(delta.z) / MAX_VEL, abs(delta.yaw) / MAX_VEL_YAW)
 
         if self.__state_machine.is_stopped():
             self.__takeoff(1)  # Tested a bit and 1m seems to work. I tried putting a really small
@@ -234,7 +234,7 @@ class Crazyflie:
         :param group_mask: TODO: what is this?
         """
         if duration == -1:
-            duration = target_height / MAX_VEL_Z
+            duration = target_height / MAX_VEL
         self.__services.takeoff(target_height, duration, group_mask)
 
     def __pose_callback(self, data):

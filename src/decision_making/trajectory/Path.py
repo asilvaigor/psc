@@ -16,16 +16,13 @@ class Path:
         self.__poses = []
         self.__times = []
         self.__intersections = []
-        self.__length = 0.0
+        self.__lengths = []
         if poses is not None:
             for i in range(len(poses)):
                 if times is None or i >= len(times):
                     self.add_pose(poses[i])
                 else:
                     self.add_pose(poses[i], times[i])
-        for i in range(len(self.__poses) - 1):
-            self.__length += Point(self.__poses[i+1].position()).dist(
-                Point(self.__poses[i].position()))
 
     @property
     def poses(self):
@@ -37,7 +34,7 @@ class Path:
 
     @property
     def length(self):
-        return self.__length
+        return self.__lengths[-1]
 
     @property
     def intersections(self):
@@ -56,9 +53,13 @@ class Path:
         else:
             if len(self.__poses) == 1:
                 self.__times.append(0)
+                self.__lengths.append(0)
             else:
                 duration = self.__poses[-1].dist(self.__poses[-2]) / MAX_VEL
                 self.__times.append(self.__times[-1] + duration)
+                self.__lengths.append(self.__lengths[-1] +
+                                      Point(self.__poses[-2].position()).dist(
+                                          Point(self.__poses[-1].position())))
 
     def add_intersection(self, intersection):
         """
@@ -68,9 +69,30 @@ class Path:
         """
         self.__intersections.append(intersection)
 
+    def length_until(self, i):
+        """
+        Returns the total distance in the path, until a certain pose.
+        :param i: Index of the pose.
+        :return: float
+        """
+        return self.__lengths[i]
+
+    def get_lengths(self):
+        """
+        Returns a list with the distances from the start to each of the poses.
+        :return: List of float
+        """
+        return self.__lengths
+
     def __repr__(self):
-        s = "["
+        s = "Poses: ["
         for i in range(len(self.__poses) - 1):
             s += Point(self.__poses[i].position()).__repr__() + " -> "
-        s += Point(self.__poses[-1].position()).__repr__()
-        return s + "]"
+        s += Point(self.__poses[-1].position()).__repr__() + "]"
+
+        s += "\nTimes: "
+        for i in range(len(self.__times) - 1):
+            s += str(self.__times[i]) + " -> "
+        s += str(self.__times[-1]) + "]"
+
+        return s

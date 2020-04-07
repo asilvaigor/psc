@@ -9,7 +9,7 @@ class StablePose:
     the orientation. The drones always have 0 roll and pitch.
     """
 
-    def __init__(self, x=0, y=0, z=0, yaw=0):
+    def __init__(self, x=0.0, y=0.0, z=0.0, yaw=0.0):
         """
         Stores values. x, y, z in meters and yaw in radians [-pi, pi].
         """

@@ -42,6 +42,8 @@ class DecisionMaking:
         self.__mesh = CGALMesh()
         drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
                                                          goal_poses)
+
+        self.__paths = {}
         for drone_id in drone_nodes:
             self.__paths[drone_id] = Path(
                 [StablePose(node.x, node.y, node.z) for node in self.__planner.plan(
