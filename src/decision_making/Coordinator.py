@@ -1,4 +1,10 @@
+import math
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import matplotlib.lines as mlines
 import numpy as np
+import rospy
+from sensor_msgs.msg import Image
 
 from decision_making.Delta import Delta
 from decision_making.trajectory.Path import Path
@@ -12,16 +18,17 @@ class Coordinator:
     def __init__(self):
         self.__n_drones = 0
         self.__i_to_drone_id = {}
-        self.__x = []
         self.__delta = None
+        self.__paths = {}
 
-    def coordinate(self, paths):
+    def coordinate(self, paths, visualize=False):
         """
         Generates coordinated paths by adjusting drone velocities given the current path, so the
         drones won't collide. This algorithm is based on the article by  Robert Ghrist, Jason
         M. O'Kane and Steven M. LaValle, untitled Computing Pareto Optimal Coordinations on
         Roadmaps, published on The International Journal of Robotics Research, year 2005.
         :param paths: Dict mapping drone_id to Path objects representing a path to follow.
+        :param visualize: Boolean, If true, will plot the coordination for each pair of drones.
         :return: Dict of Path objects, a coordinated roadmap for the drones.
         """
         self.__n_drones = len(paths)
@@ -52,9 +59,79 @@ class Coordinator:
             dt = self.__event_dt(x, x_goal, v)
             x.append(x[-1] + v * dt)
             t.append(t[-1] + dt)
-        self.__x = x
+
+        self.__paths = paths
+        if visualize:
+            self.plot(x)
 
         return self.__to_paths(x, t, paths)
+
+    def plot(self, x):
+        """
+        Plots the delta space with matplotlib, for every pair of drones.
+        TODO: put this outside coordinator.
+        :param x: List of np.array of size n_drones and dtype float. Contains, for each step,
+        the position for each drone in the coordination space.
+        """
+        n_axis = int(len(self.__delta) / 2)
+        n_cols = int(math.ceil(math.sqrt(n_axis)))
+        n_rows = int(math.ceil(1.0 * n_axis / n_cols))
+
+        fig, ax = plt.subplots(n_rows, n_cols, squeeze=False)
+        k = 0
+        for i in range(self.__n_drones):
+            for j in range(self.__n_drones):
+                if j <= i:
+                    continue
+
+                i_ax = k // n_cols
+                j_ax = k % n_cols
+                i_drone = self.__i_to_drone_id[i]
+                j_drone = self.__i_to_drone_id[j]
+
+                ax[i_ax][j_ax].set_xlim([0, self.__paths[i_drone].length])
+                ax[i_ax][j_ax].set_ylim([0, self.__paths[j_drone].length])
+                ax[i_ax][j_ax].set_xlabel("drone " + str(i_drone))
+                ax[i_ax][j_ax].set_ylabel("drone " + str(j_drone))
+
+                for intersection in self.__delta[i_drone, j_drone]:
+                    x1 = intersection.interval_1[0]
+                    y1 = intersection.interval_2[0]
+                    dx = intersection.interval_1[1] - x1
+                    dy = intersection.interval_2[1] - y1
+                    ax[i_ax][j_ax].add_patch(patches.Rectangle((x1, y1), dx, dy, facecolor='k'))
+                    if intersection.orientation == 1:
+                        s = "CW"
+                    else:
+                        s = "CCW"
+                    ax[i_ax][j_ax].text(x1 + dx / 2.0, y1 + dy / 2.0, s,
+                                        horizontalalignment='center',
+                                        verticalalignment='center', color="w")
+
+                delta_path = self.__delta.get_precalculated_path()[i_drone, j_drone]
+                for z in range(len(delta_path) - 1):
+                    x1 = delta_path[z].x
+                    x2 = delta_path[z+1].x
+                    y1 = delta_path[z].y
+                    y2 = delta_path[z+1].y
+                    ax[i_ax][j_ax].add_line(mlines.Line2D([x1, x2], [y1, y2], color="r"))
+
+                for z in range(len(x) - 1):
+                    ax[i_ax][j_ax].add_line(mlines.Line2D([x[z][i], x[z + 1][i]],
+                                                          [x[z][j], x[z + 1][j]], color="b"))
+
+                k += 1
+
+        try:
+            fig.canvas.draw()
+            data = list(np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep=''))
+            h = fig.canvas.get_width_height()[1]
+            w = fig.canvas.get_width_height()[0]
+            img_publisher = rospy.Publisher('delta_space', Image, queue_size=10, latch=True)
+            img = Image(height=h, width=w, data=data, encoding="rgb8", step=3 * w)
+            img_publisher.publish(img)
+        except rospy.ROSException:
+            plt.show()
 
     @staticmethod
     def coordinate_stub(paths):
@@ -228,9 +305,3 @@ class Coordinator:
                     i += 1
 
         return paths
-
-    def get_delta(self):
-        return self.__delta
-
-    def get_x(self):
-        return self.__x

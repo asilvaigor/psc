@@ -5,7 +5,7 @@
       "keys": {
         "running-plugins": {
           "type": "repr",
-          "repr": "{u'psc/SwarmController': [1], u'psc/ConnectionHandler': [1]}"
+          "repr": "{u'psc/SwarmController': [1], u'psc/ConnectionHandler': [1], u'rqt_image_view/ImageView': [1]}"
         }
       },
       "groups": {
@@ -36,6 +36,73 @@
                   "repr": "u''"
                 },
                 "hide_menu": {
+                  "type": "repr",
+                  "repr": "False"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_image_view__ImageView__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Image View'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "max_range": {
+                  "type": "repr",
+                  "repr": "10.0"
+                },
+                "rotate": {
+                  "type": "repr",
+                  "repr": "0"
+                },
+                "smooth_image": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "mouse_pub_topic": {
+                  "type": "repr",
+                  "repr": "u'/delta_space_mouse_left'"
+                },
+                "num_gridlines": {
+                  "type": "repr",
+                  "repr": "0"
+                },
+                "toolbar_hidden": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "zoom1": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "dynamic_range": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "topic": {
+                  "type": "repr",
+                  "repr": "u'/delta_space'"
+                },
+                "publish_click_location": {
                   "type": "repr",
                   "repr": "False"
                 }
@@ -98,28 +165,6 @@
             }
           }
         },
-        "plugin__psc__SwarmController__1": {
-          "keys": {},
-          "groups": {
-            "dock_widget__SwarmControllerUi": {
-              "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "True"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                },
-                "dock_widget_title": {
-                  "type": "repr",
-                  "repr": "u'swarm_controller'"
-                }
-              },
-              "groups": {}
-            }
-          }
-        },
         "plugin__MultiplotPlugin__1": {
           "keys": {},
           "groups": {
@@ -155,6 +200,28 @@
               }
             }
           }
+        },
+        "plugin__psc__SwarmController__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__SwarmControllerUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'swarm_controller'"
+                }
+              },
+              "groups": {}
+            }
+          }
         }
       }
     },
@@ -167,8 +234,8 @@
         },
         "state": {
           "type": "repr(QByteArray.hex)",
-          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd0000000200000002000001e1000002b6fc0100000003fb0000004c007200710074005f0074006f007000690063005f005f0054006f0070006900630050006c007500670069006e005f005f0031005f005f0054006f0070006900630057006900640067006500740100000000000003bf0000000000000000fc00000000000001e10000014000fffffffc0200000002fb0000005c007000730063005f005f0043006f006e006e0065006300740069006f006e00480061006e0064006c00650072005f005f0031005f005f0043006f006e006e0065006300740069006f006e00480061006e0064006c006500720055006901000000000000016c0000016a00fffffffb00000054007000730063005f005f0053007700610072006d0043006f006e00740072006f006c006c00650072005f005f0031005f005f0053007700610072006d0043006f006e00740072006f006c006c00650072005500690100000172000001440000007200fffffffb00000026007200710074005f007200760069007a005f005f005200560069007a005f005f0031005f005f010000020300000312000000000000000000000003000004fb000000eefc0100000001fb00000046004d0075006c007400690070006c006f00740050006c007500670069006e005f005f0031005f005f004d0075006c007400690070006c006f007400570069006400670065007401000000000000038b0000000000000000000001e10000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
-          "pretty-print": "                 Lrqt_topic__TopicPlugin__1__TopicWidget              @                                                         l j                                                r D r                                                                                                                                               "
+          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd0000000200000002000001e1000002b6fc0100000003fb0000004c007200710074005f0074006f007000690063005f005f0054006f0070006900630050006c007500670069006e005f005f0031005f005f0054006f0070006900630057006900640067006500740100000000000003bf0000000000000000fc00000000000001e10000014000fffffffc0200000002fc0000000000000188000001880100001dfa000000000100000002fb0000005c007000730063005f005f0043006f006e006e0065006300740069006f006e00480061006e0064006c00650072005f005f0031005f005f0043006f006e006e0065006300740069006f006e00480061006e0064006c00650072005500690100000000ffffffff0000014000fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0031005f005f0049006d00610067006500560069006500770057006900640067006500740100000000ffffffff000000c700fffffffb00000054007000730063005f005f0053007700610072006d0043006f006e00740072006f006c006c00650072005f005f0031005f005f0053007700610072006d0043006f006e00740072006f006c006c0065007200550069010000018e000001280000007200fffffffb00000026007200710074005f007200760069007a005f005f005200560069007a005f005f0031005f005f010000020300000312000000000000000000000003000001e1000000b2fc0100000001fb00000046004d0075006c007400690070006c006f00740050006c007500670069006e005f005f0031005f005f004d0075006c007400690070006c006f007400570069006400670065007401000000000000038b0000000000000000000001e10000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
+          "pretty-print": "                 Lrqt_topic__TopicPlugin__1__TopicWidget              @                    \\psc__ConnectionHandler__1__ConnectionHandlerUi          Zrqt_image_view__ImageView__1__ImageViewWidget          Tpsc__SwarmController__1__SwarmControllerUi          &rqt_rviz__RViz__1__                   FMultiplotPlugin__1__MultiplotWidget                            6MinimizedDockWidgetsToolbar        "
         }
       },
       "groups": {

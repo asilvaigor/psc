@@ -48,7 +48,7 @@ class DecisionMaking:
             self.__paths[drone_id] = Path(
                 [StablePose(node.x, node.y, node.z) for node in self.__planner.plan(
                     drone_nodes[drone_id], goal_nodes[drone_id])])
-        self.__paths = self.__coordinator.coordinate(self.__paths)
+        self.__paths = self.__coordinator.coordinate(self.__paths, visualize=True)
 
     def unpause(self, obstacle_collection, drone_poses, goal_poses):
         """
