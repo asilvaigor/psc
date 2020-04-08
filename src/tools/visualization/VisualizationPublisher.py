@@ -300,10 +300,11 @@ class VisualizationPublisher:
             for i in range(1, len(path.poses)):
                 p1 = representations.Point.Point(path.poses[i - 1].position())
                 p2 = representations.Point.Point(path.poses[i].position())
-                for j in range(2):
-                    if dist_from_start - EPS < intersection[j] < dist_from_start + p1.dist(p2):
-                        pt = p1 + (p2 - p1) * (intersection[j] - dist_from_start) / p1.dist(p2)
-                        c.points.append(Point(pt.x, pt.y, pt.z))
+                if p1 != p2:
+                    for j in range(2):
+                        if dist_from_start - EPS < intersection[j] < dist_from_start + p1.dist(p2):
+                            pt = p1 + (p2 - p1) * (intersection[j] - dist_from_start) / p1.dist(p2)
+                            c.points.append(Point(pt.x, pt.y, pt.z))
 
                 dist_from_start += p1.dist(p2)
 
