@@ -25,11 +25,15 @@ class VisualizationPublisher:
         Basic constructor
         """
         self.__drones = drones
-        self.__past_path_markers = MarkerArray()
         self.__drone_color_map = {}
         for drone_id in drones:
-            self.add_in_trajectory(drones, drones[drone_id])
+            self.add_drone(drones[drone_id])
 
+        # Markers
+        self.__past_path_markers = {}
+        self.__drone_markers = {}
+
+        # Publishers
         self.__drone_publisher = rospy.Publisher('visualization_drones', MarkerArray, queue_size=10)
         self.__past_path_publisher = rospy.Publisher('visualization_ppath', MarkerArray,
                                                      queue_size=10)
@@ -46,21 +50,31 @@ class VisualizationPublisher:
 
     def update_drones(self):
         """
-        Updates drone markers on rviz.
+        Updates drone markers and past path on rviz.
         """
-        drones_markers = MarkerArray()
-
-        # Here we call each drone
+        # Updating drone poses
         for drone in self.__drones.values():
-            drones_markers.markers.append(self.__get_pose_marker(
-                drone.pose, COLORS[self.__drone_color_map[drone.id]], drone.id, 1))
+            marker = self.__drone_markers[drone.id]
+            marker.action = Marker.MODIFY
+            marker.pose = drone.pose
+        m = MarkerArray()
+        m.markers = list(self.__drone_markers.values())
+        self.__drone_publisher.publish(m)
 
-        # Here we update the past path
-        self.__update_past_path()
-
-        # Publish the array of markers and the trajectory
-        self.__drone_publisher.publish(drones_markers)
-        self.__past_path_publisher.publish(self.__past_path_markers)
+        # Updating past path
+        for drone in self.__drones.values():
+            marker = self.__past_path_markers[drone.id]
+            marker.action = Marker.MODIFY
+            marker.id += 1
+            if len(marker.points) == 2:
+                marker.points[0] = marker.points[1]
+                marker.points[1] = Point(drone.pose.position.x, drone.pose.position.y,
+                                         drone.pose.position.z)
+            else:
+                marker.points.append(Point(drone.pose.position.x, drone.pose.position.y,
+                                           drone.pose.position.z))
+        m.markers = list(self.__past_path_markers.values())
+        self.__past_path_publisher.publish(m)
 
     def update_goal_poses(self, goal_poses):
         """
@@ -73,12 +87,12 @@ class VisualizationPublisher:
         markers = MarkerArray()
         if 0 in goal_poses and len(self.__drones) % 2 == 0:
             markers.markers.append(self.__get_pose_marker(
-                goal_poses[0].to_ros(), WHITE, 0, 0.7, -1))
+                goal_poses[0].to_ros(), WHITE, 0, 0.7))
         for drone_id in self.__drones:
             if drone_id in goal_poses:
                 markers.markers.append(self.__get_pose_marker(
                     goal_poses[drone_id].to_ros(),
-                    COLORS[self.__drone_color_map[drone_id]], drone_id, 0.5, -1))
+                    COLORS[self.__drone_color_map[drone_id]], drone_id, 0.5))
 
         self.__goal_publisher.publish(markers)
 
@@ -97,9 +111,75 @@ class VisualizationPublisher:
             self.__update_mesh(mesh)
 
     def update_paths(self):
+        self.__clear_past_paths()
+
+        # Updating future path
         for drone_id in self.__drones:
             if self.__drones[drone_id].path is not None:
                 self.__update_future_path(drone_id, self.__drones[drone_id].path)
+
+    def add_drone(self, drone):
+        # Updating color map
+        cnt = len(self.__drone_color_map)
+        self.__drone_color_map[drone.id] = cnt
+
+        # Creating its marker
+        self.__drone_markers[drone.id] = self.__get_pose_marker(
+            drone.pose, COLORS[self.__drone_color_map[drone.id]], drone.id, 1)
+        m = MarkerArray()
+        m.markers = list(self.__drone_markers.values())
+        self.__drone_publisher.publish(m)
+
+        # Creating past trajectory marker
+        marker = Marker()
+        marker.header.frame_id = str(1)
+        marker.type = Marker.LINE_STRIP
+        marker.action = Marker.ADD
+        marker.id = 1000 + drone.id * 100000
+        marker.color = COLORS_T[self.__drone_color_map[drone.id]]
+
+        # Size of the line
+        marker.scale.x = MARKER_LINE_SIZE_X
+
+        self.__past_path_markers[drone.id] = marker
+
+    def remove_drone(self, drone_id=0):
+        if drone_id == 0:
+            # Clearing future markers
+            m = MarkerArray()
+            marker = Marker()
+            marker.action = Marker.DELETEALL
+            m.markers.append(marker)
+            self.__future_path_publisher.publish(m)
+            self.__future_path_collisions_publisher.publish(m)
+
+            # Clearing future path
+            self.__clear_past_paths()
+            self.__past_path_markers.clear()
+
+            # Clearing goal markers
+            self.__goal_publisher.publish(m)
+        else:
+            # Clearing future path
+            marker = Marker()
+            marker.action = Marker.DELETEALL
+            self.__future_path_publisher.publish(marker)
+            self.__future_path_collisions_publisher.publish(marker)
+
+            # Clearing past path
+            self.__clear_past_paths()
+            del self.__past_path_markers[drone_id]
+
+            # Clearing drone marker
+            self.__drone_markers[drone_id].action = Marker.DELETE
+            m = MarkerArray()
+            m.markers = list(self.__drone_markers.values())
+            self.__drone_publisher.publish(m)
+            del self.__drone_markers[drone_id]
+
+            # Clearing goal markers
+            m.markers = [marker]
+            self.__goal_publisher.publish(m)
 
     def terminate(self):
         """
@@ -117,11 +197,6 @@ class VisualizationPublisher:
 
         t = threading.Thread(target=pipeline)
         t.start()
-
-    def __update_past_path(self):
-        # For each drone we add his position in the moment
-        for m in self.__past_path_markers.markers:
-            m.points.append(self.new_point(self.__drones[m.id]))
 
     def __update_obstacles(self, obstacle_collection):
         """
@@ -235,15 +310,21 @@ class VisualizationPublisher:
         self.__future_path_publisher.publish(m)
         self.__future_path_collisions_publisher.publish(c)
 
+    def __clear_past_paths(self):
+        for drone_id in self.__past_path_markers:
+            self.__past_path_markers[drone_id].action = Marker.DELETEALL
+        m = MarkerArray()
+        m.markers = list(self.__past_path_markers.values())
+        self.__past_path_publisher.publish(m)
+
     @staticmethod
-    def __get_pose_marker(pose, color, id, scale=1.0, lifetime=1):
+    def __get_pose_marker(pose, color, id, scale=1.0):
         """
         Creates an arrow marker with information from a pose.
         :param pose: Pose object to be created.
         :param color: Color of the marker.
         :param id: Id of the marker.
         :param scale: float to adjust marker size.
-        :param lifetime: Duration the marker will stay visible.
         :return: Arrow Marker representing the pose.
         """
         marker = Marker()
@@ -252,7 +333,6 @@ class VisualizationPublisher:
         marker.action = Marker.ADD
         marker.id = id
         marker.color = color
-        marker.lifetime = rospy.Duration(lifetime)
 
         marker.scale.x = scale * MARKER_ARROW_SIZES[0]
         marker.scale.y = scale * MARKER_ARROW_SIZES[1]
@@ -260,43 +340,3 @@ class VisualizationPublisher:
 
         marker.pose = pose
         return marker
-
-    @staticmethod
-    def new_point(drone):
-        # Returns a new point correspondent to where the drone is
-        p = Point(drone.pose.position.x, drone.pose.position.y, drone.pose.position.z)
-        return p
-
-    def add_in_trajectory(self, drones, drone):
-        # Characteristics of each marker
-        line_markers = Marker()
-        line_markers.header.frame_id = str(1)
-        line_markers.type = line_markers.LINE_STRIP
-        line_markers.action = line_markers.ADD
-        line_markers.id = drone.id
-
-        # Size of the line
-        line_markers.scale.x = MARKER_LINE_SIZE_X
-
-        # Color of the marker
-        cnt = len(self.__drone_color_map)
-        self.__drone_color_map[drone.id] = cnt
-        line_markers.color = COLORS_T[self.__drone_color_map[drone.id]]
-
-        # Position of the marker - we suppose here that the drone
-        # has an initial position before starting to move
-        line_markers.points.append(self.new_point(drone))
-
-        # Add it in our marker array
-        self.__past_path_markers.markers.append(line_markers)
-        self.__drones = drones
-
-    def remove_drone(self, drones, drone_id=0):
-        if drone_id == 0:
-            for i in range(len(self.__past_path_markers)):
-                del self.__past_path_markers[i]
-        else:
-            for i in range(len(self.__past_path_markers)):
-                if self.__past_path_markers[i].id == drone_id:
-                    del self.__past_path_markers[i]
-        self.__drones = drones
