@@ -21,15 +21,8 @@ MAX_Z = 1.5  # m
 
 # Maximum velocities
 # TODO: put good values
-MAX_VEL = 0.375  # m/s
+MAX_VEL = 0.25  # m/s
 MAX_VEL_YAW = 0.5  # rad/s
-
-# Maximum acceleration
-# TODO: put good values
-MAX_ACC_X = 0.03  # m/s^2
-MAX_ACC_Y = 0.03  # m/s^2
-MAX_ACC_Z = 0.03  # m/s^2
-MAX_ACC_YAW = 0.03  # rad/s^2
 
 # TODO: define maximum path curvature
 
