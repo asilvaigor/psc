@@ -14,11 +14,16 @@ class CGALMesh:
     Represents the world mesh uniformly - nodes separated by a constant distance.
     """
 
-    def __init__(self):
+    def __init__(self, angle=30, size=0.2, approximation=0.02, radiusedge=2, ratio=0.4):
         """
         Default constructor.
         """
         self.__nodes = []
+        self.__angle = angle
+        self.__size = size
+        self.__approximation = approximation
+        self.__radiusedge = radiusedge
+        self.__ratio = ratio
 
     @property
     def nodes(self):
@@ -60,7 +65,9 @@ class CGALMesh:
         z_dim = MAX_Z
         print(cyl_c1_list, cyl_c2_list, cyl_r_list)
         mesh_nodes = mesh.generateMesh([x_dim, y_dim, z_dim],
-                                       cyl_c1_list, cyl_c2_list, cyl_r_list, cyl_dir_list)
+                                       cyl_c1_list, cyl_c2_list, cyl_r_list, cyl_dir_list,
+                                       self.__angle, self.__size, self.__approximation,
+                                       self.__radiusedge, self.__ratio)
         for _ in mesh_nodes:
             self.__nodes.append(MeshNode())
         for n in mesh_nodes:
