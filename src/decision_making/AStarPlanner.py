@@ -5,7 +5,7 @@ class AStarPlanner:
     def __init__(self):
         pass
 
-    def plan(self, start_node, goal_node):
+    def plan(self, start_node, goal_node, dist_function=lambda n1, n2: n1.dist(n2)):
         """
         Calculates trajectory using A* algorithm. Worst-case O(n + e log(e))
         :param start_node: Beginning node.
@@ -22,7 +22,7 @@ class AStarPlanner:
 
         # First node
         cost = 0  # Cost in graph
-        dist = goal_node.dist(start_node)  # Heuristic compensation
+        dist = dist_function(start_node, goal_node)  # Heuristic compensation
         heuristic = cost + dist
         pq.append((heuristic, cost, start_node))
         visited[start_node] = True
@@ -37,8 +37,8 @@ class AStarPlanner:
             # Insert edges in pq
             for n in cur[2].edges:
                 if n not in visited:
-                    cost = cur[1] + cur[2].dist(n)
-                    dist = goal_node.dist(n)
+                    cost = cur[1] + dist_function(cur[2], n)
+                    dist = dist_function(n, goal_node)
                     heuristic = cost + dist
                     heapq.heappush(pq, (heuristic, cost, n))
                     visited[n] = True

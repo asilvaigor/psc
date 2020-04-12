@@ -7,8 +7,8 @@ VISUALIZATION_RATE = 30  # Hz
 N_DRONES = 12
 
 # Double precision
-GROUND_PRECISION = 0.05  # m
-PRECISION = 1e-3  # m
+GROUND_EPS = 0.05  # m
+EPS = 1e-6  # m
 
 # Room limits for the drones to be in.
 # TODO: put good values
@@ -22,9 +22,6 @@ MAX_Z = 1.5  # m
 # Maximum velocities
 # TODO: put good values
 MAX_VEL = 0.375  # m/s
-MAX_VEL_X = 0.375  # m/s
-MAX_VEL_Y = 0.375  # m/s
-MAX_VEL_Z = 0.375  # m/s
 MAX_VEL_YAW = 0.5  # rad/s
 
 # Maximum acceleration
@@ -38,7 +35,10 @@ MAX_ACC_YAW = 0.03  # rad/s^2
 
 # Margin for a drone to pass next to an obstacle.
 OBSTACLE_MARGIN = 0.2  # m
-MESH_EDGE_DIST = 0.4
+
+# Maximum distance between two edge vertex.
+# Not used for mesh generation!!
+MESH_EDGE_DIST = 0.4  # m
 
 # Colors for drones
 BLUE = ColorRGBA(0.0, 0.0, 1.0, 1.0)

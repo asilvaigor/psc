@@ -1,3 +1,4 @@
+matplotlib
 actionlib==1.11.13
 angles==1.9.11
 bondpy==1.8.3

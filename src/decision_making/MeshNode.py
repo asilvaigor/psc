@@ -2,7 +2,7 @@ from geometry_msgs.msg import Pose, Point
 import math
 
 from decision_making.Node import Node
-from representations.Constants import GROUND_PRECISION, PRECISION
+from representations.Constants import GROUND_EPS, EPS
 from representations.StablePose import StablePose
 
 
@@ -55,14 +55,14 @@ class MeshNode(Node):
         Checks if node is on the ground.
         :return: True or False
         """
-        return self.z < GROUND_PRECISION
+        return self.z < GROUND_EPS
 
     def __eq__(self, node):
         """
         Checks if two nodes are equal.
         :param node:
         """
-        return self.dist(node) < PRECISION
+        return self.dist(node) < EPS
 
     def __repr__(self):
         """
@@ -84,8 +84,8 @@ class MeshNode(Node):
         :param node:
         :return: Bool True if self should be placed before node.
         """
-        if abs(self.x - node.x) < PRECISION:
-            if abs(self.y - node.y) < PRECISION:
+        if abs(self.x - node.x) < EPS:
+            if abs(self.y - node.y) < EPS:
                 return self.z < node.z
             else:
                 return self.y < node.y

@@ -1,6 +1,8 @@
 from decision_making.AStarPlanner import AStarPlanner
 from decision_making.Coordinator import Coordinator
 from decision_making.CGALMesh import CGALMesh
+from decision_making.trajectory.Path import Path
+from representations.StablePose import StablePose
 
 
 class DecisionMaking:
@@ -40,10 +42,13 @@ class DecisionMaking:
         self.__mesh = CGALMesh()
         drone_nodes, goal_nodes = self.__mesh.discretize(obstacle_collection, drone_poses,
                                                          goal_poses)
-        paths_nodes = {}
+
+        self.__paths = {}
         for drone_id in drone_nodes:
-            paths_nodes[drone_id] = self.__planner.plan(drone_nodes[drone_id], goal_nodes[drone_id])
-        self.__paths = self.__coordinator.coordinate_stub(paths_nodes)
+            self.__paths[drone_id] = Path(
+                [StablePose(node.x, node.y, node.z) for node in self.__planner.plan(
+                    drone_nodes[drone_id], goal_nodes[drone_id])])
+        self.__paths = self.__coordinator.coordinate(self.__paths)
 
     def unpause(self, obstacle_collection, drone_poses, goal_poses):
         """

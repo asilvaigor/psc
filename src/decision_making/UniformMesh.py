@@ -2,7 +2,7 @@ import numpy as np
 from geometry_msgs.msg import Point
 
 from decision_making.MeshNode import MeshNode
-from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z, PRECISION
+from representations.Constants import MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z, EPS
 
 
 class UniformMesh:
@@ -63,7 +63,7 @@ class UniformMesh:
             for k2 in nodes_dict:
                 if k1 != k2 and not \
                         (nodes_dict[k1].is_on_ground() and nodes_dict[k2].is_on_ground()) and \
-                        nodes_dict[k1].dist(nodes_dict[k2]) < 1.7 * self.__delta + PRECISION:
+                        nodes_dict[k1].dist(nodes_dict[k2]) < 1.7 * self.__delta + EPS:
                     add_edge(k1, k2)
 
         # Adding drone nodes
