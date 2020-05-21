@@ -2,7 +2,7 @@ import sys
 import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(1, dir_path + '/../../../generate_mesh/build-python/CGAL/')
+sys.path.insert(1, dir_path + '/../../../generate_mesh/build/')
 import mesh
 
 from MeshNode import MeshNode
@@ -19,7 +19,8 @@ class CGALMesh:
     Represents the world mesh uniformly - nodes separated by a constant distance.
     """
 
-    def __init__(self, angle=30, size=0.2, approximation=0.02, radiusedge=2, ratio=0.4):
+    def __init__(self, angle=3.20447570e+01, size=2.15358173e-01, approximation=1.86773522e-02
+                 , radiusedge=1.90374963e+00, ratio=3.05491966e-01):
         """
         Default constructor.
         """
