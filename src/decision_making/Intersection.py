@@ -39,4 +39,4 @@ class Intersection:
         self.__orientation = orientation
 
     def __repr__(self):
-        return self.__interval_1.__repr__() + "/" + self.__interval_2.__repr__()
+        return self.interval_1.__repr__() + "/" + self.interval_2.__repr__()

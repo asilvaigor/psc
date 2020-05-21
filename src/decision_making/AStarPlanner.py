@@ -10,6 +10,8 @@ class AStarPlanner:
         Calculates trajectory using A* algorithm. Worst-case O(n + e log(e))
         :param start_node: Beginning node.
         :param goal_node: Goal node.
+        :param dist_function: Function used to calculate nodes distance. Will always be used with
+        the current node in the first position of the function.
         :return: List of nodes representing the shortest path.
         """
         if start_node == goal_node:

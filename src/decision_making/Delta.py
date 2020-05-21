@@ -1,7 +1,3 @@
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib.lines as mlines
-
 from decision_making.AStarPlanner import AStarPlanner
 from decision_making.DeltaNode import DeltaNode
 from decision_making.Intersection import Intersection
@@ -39,47 +35,6 @@ class Delta:
                                                        -intersection.orientation))
                 else:
                     self[i, j] = self.__compute_intersections(paths[i], paths[j], (i, j))
-
-    def plot(self, i, j, x=None):
-        """
-        Plots the delta space with matplotlib.
-        :param i: Id of the first drone.
-        :param j: Id of the second drone.
-        :param x: Tuple of list of floats, which represents a set of points to be plotted as a path.
-        """
-        size_transf = 6.4 / max(self.__paths[i].length, self.__paths[j].length)
-        plt.figure(1, figsize=(self.__paths[i].length * size_transf,
-                               self.__paths[j].length * size_transf))
-        ax = plt.gca()
-
-        for intersection in self.__deltas[i, j]:
-            x1 = intersection.interval_1[0]
-            y1 = intersection.interval_2[0]
-            dx = intersection.interval_1[1] - x1
-            dy = intersection.interval_2[1] - y1
-            ax.add_patch(patches.Rectangle((x1, y1), dx, dy, facecolor='k'))
-            if intersection.orientation == 1:
-                s = "CW"
-            else:
-                s = "CCW"
-            ax.text(x1 + dx / 2.0, y1 + dy / 2.0, s,
-                    horizontalalignment='center', verticalalignment='center', color="w")
-
-        for k in range(len(self.__delta_path) - 1):
-            x1 = self.__delta_path[i, j][k].x
-            x2 = self.__delta_path[i, j][k+1].x
-            y1 = self.__delta_path[i, j][k].y
-            y2 = self.__delta_path[i, j][k+1].y
-            ax.add_line(mlines.Line2D([x1, x2], [y1, y2], color="r"))
-
-        if x is not None:
-            for k in range(len(x[0]) - 1):
-                ax.add_line(mlines.Line2D([x[0][k], x[0][k + 1]],
-                                          [x[1][k], x[1][k + 1]], color="b"))
-
-        ax.set_xlim([0, self.__paths[i].length])
-        ax.set_ylim([0, self.__paths[j].length])
-        plt.show()
 
     def __compute_intersections(self, path_1, path_2, ids):
         """
@@ -255,6 +210,13 @@ class Delta:
             else:
                 i.orientation = -1
 
+    def get_precalculated_path(self):
+        """
+        Returns an unoptimized path, which was used to calculate obstacle orientations.
+        :return: Dict of tuple (drone_id, drone_id) to list of DeltaNodes.
+        """
+        return self.__delta_path
+
     def __getitem__(self, item):
         """
         Accesses __deltas.
@@ -271,3 +233,6 @@ class Delta:
         :param delta: List of Intersection objects.
         """
         self.__deltas[item] = delta
+
+    def __len__(self):
+        return len(self.__deltas)

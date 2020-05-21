@@ -21,15 +21,8 @@ MAX_Z = 1.5  # m
 
 # Maximum velocities
 # TODO: put good values
-MAX_VEL = 0.375  # m/s
+MAX_VEL = 0.25  # m/s
 MAX_VEL_YAW = 0.5  # rad/s
-
-# Maximum acceleration
-# TODO: put good values
-MAX_ACC_X = 0.03  # m/s^2
-MAX_ACC_Y = 0.03  # m/s^2
-MAX_ACC_Z = 0.03  # m/s^2
-MAX_ACC_YAW = 0.03  # rad/s^2
 
 # TODO: define maximum path curvature
 
@@ -38,7 +31,10 @@ OBSTACLE_MARGIN = 0.2  # m
 
 # Maximum distance between two edge vertex.
 # Not used for mesh generation!!
-MESH_EDGE_DIST = 0.4  # m
+MESH_EDGE_DIST = 0.5  # m
+
+# Height of the drone when it is on the floor
+DRONE_HEIGHT = 0.035
 
 # Colors for drones
 BLUE = ColorRGBA(0.0, 0.0, 1.0, 1.0)
