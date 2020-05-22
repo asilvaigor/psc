@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ~/.bashrc
+
 ############ CRAZYFLIE ################
 # From <https://github.com/wuwushrek/sim_cf>
 sudo apt-get install git zip qtcreator cmake build-essential genromfs ninja-build -y
@@ -24,6 +26,7 @@ cd ~/catkin_ws/src
 git clone https://github.com/wuwushrek/sim_cf.git
 cd sim_cf/
 git submodule update --init --recursive
+
 cd ~/catkin_ws
 catkin_make
 source devel/setup.bash
@@ -37,3 +40,4 @@ cd ~/catkin_ws
 
 ################ EDITING PYTHONPATH ##################
 echo 'export PYTHONPATH=$PYTHONPATH:~/catkin_ws/src/psc/src' >> ~/.bashrc
+source ~/.bashrc
