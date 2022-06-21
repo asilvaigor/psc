@@ -24,7 +24,7 @@ image-geometry==1.12.8
 interactive-markers==1.11.4
 laser-geometry==1.6.4
 message-filters==1.12.14
-numpy==1.16.5
+numpy==1.22.0
 pluginlib==1.11.3
 pyparsing==2.4.2
 python-dateutil==2.8.0
